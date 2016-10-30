@@ -3,7 +3,7 @@
 Obrazowanie wielospektralne jest techniką rejestracji obrazu za pomocą fal elektromagnetycznych o wybranej częstotliwości spośród widma spektroskopowego. Podczas gdy ludzkie oko widzi w głównie w trzech zakresach spektralnych (czerwonym, niebieskim oraz żółtym), obraz wielospektralny jest rejestrowany w znacznie większej ilości zakresów (przykładowo 31).
 
 \section{Format danych}
-Dane wielospektralne są często nazywane kostką wielospektralną. 
+\index{kostka wielospektralna} Dane wielospektralne są często nazywane kostką wielospektralną. 
 
 \begin{figure}[ht]
 	\centering
@@ -27,16 +27,16 @@ Ze względu na swoją charakterystykę obrazy wielospektralne mogą bezproblemow
 
 Oryginalny obraz wielospektralny jest traktowany jako dana wejściowa w systemie. Na jego podstawie powstają dane pochodne. Są to głównie kolejne obrazy oraz histogramy wielospektralne. Do stworzenia prototypu mechanizmu zarządzania danymi oraz procesem przetworzenia użyte zostały poniższe dane:
 \begin{itemize}
-	\item \textbf{image} -- oryginalny obraz wielospektralny. Dana ta jest obliczana podczas inicjalizacji systemu. Użytkownik może wejść w interakcję z systemem dopiero gdy image zostanie przetworzone.
-	\item \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu,
-	\item \textbf{image.IMG} -- fragment obrazu oryginalnego zdeterminowany przez ROI,
-	\item \textbf{image.NORM} -- image.IMG po normalizacji wektora agregującego piksele na przestrzeni pasm spektralnych,
-	\item \textbf{image.GRAD} -- gradient obrazu image.IMG,
-	\item \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (analizy głównych składowych),
-	\item \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA,
-	\item \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji (przykładowo bands.NORM.6),
-	\item \textbf{dist.IMG} - histogram wielospektralny obrazu image.IMG,
-	\item \textbf{dist.tmp.IMG} - dana pomocnicza używana do uzyskania danej dist.IMG. 
+	\item \index{image} \textbf{image} -- oryginalny obraz wielospektralny. Dana ta jest obliczana podczas inicjalizacji aplikacji. Użytkownik może wejść w interakcję z systemem dopiero gdy image zostanie przetworzone.
+	\item \index{ROI} \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu,
+	\item \index{image.IMG} \textbf{image.IMG} -- fragment obrazu oryginalnego zdeterminowany przez ROI,
+	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektora agregującego piksele na przestrzeni pasm spektralnych,
+	\item \index{image.GRAD} \textbf{image.GRAD} -- gradient obrazu image.IMG,
+	\item \index{image.PCA} \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (analizy głównych składowych),
+	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA,
+	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji (przykładowo bands.NORM.6),
+	\item \index{dist.IMG} \textbf{dist.IMG} - histogram wielospektralny obrazu image.IMG,
+	\item \index{dist.tmp.IMG} \textbf{dist.tmp.IMG} - dana pomocnicza używana do uzyskania danej dist.IMG. 
 \end{itemize}
 Z racji, że jedne dane produkują inne, łatwo jest zdefiniować hierarchię danych w tym systemie.
 
@@ -50,7 +50,7 @@ Z racji, że jedne dane produkują inne, łatwo jest zdefiniować hierarchię d
 %\todo{Groty strzałek prawdopodobnie powinny być skierowane przeciwnie}
 %\todo{Pojawiają się dziwne problemy z wstawieniem tego obrazka}
 
-Na rysunku ~\ref{fig:data-dependencies} przedstawiono diagram zależności danych. Dane jednego koloru należą do tej samej grupy semantycznej. Przykładowo, image.NORM, image.GRAD, image.GRADPCA itp. są reprezentacjami obrazu oryginalnego. Dane posiadają również swoje metadane. Przykładowo metadaną ROI jest ROI.diff, które określa różnicę pomiędzy aktualnym a poprzednim ROI. 
+Na rysunku ~\ref{fig:data-dependencies} przedstawiono diagram zależności danych. Dane jednego koloru są do siebie semantycznie zbliżone. Przykładowo, image.NORM, image.GRAD, image.GRADPCA itp. są reprezentacjami obrazu oryginalnego. Dane posiadają również swoje metadane. Przykładowo metadaną ROI jest ROI.diff, które określa różnicę pomiędzy aktualnym a poprzednim ROI. 
 
 \subsection{Wpływ hierarchii danych na proces wykonania}
 Analizując rysunek ~\ref{fig:data-dependencies} można dojść do wniosku, że proces przetworzenia danych jest dyktowany poprzez ich hierarchię. Przykładowo, do obliczenia image.GRADPCA wymagane jest aby dane image, ROI, image.IMG oraz image.GRAD były już przetworzone. Dodatkowo można określić porządek, w którym te dane powinny zostać obliczone:

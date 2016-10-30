@@ -1,27 +1,51 @@
 \documentclass[a4paper,onecolumn,oneside,12pt,extrafontsizes]{memoir}
+\pdfinclusioncopyfonts 1
 
 %\usepackage[cp1250]{inputenc}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 
 \usepackage[polish]{babel}
+\usepackage{ebgaramond} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes} 
+\frenchspacing
+
 
 \usepackage{setspace}
 
 \usepackage{tabularx}
 
 \usepackage{color,calc}
-\usepackage{ebgaramond} 
-\usepackage{tgtermes} 
+
 \renewcommand*\ttdefault{txtt}
 
-\usepackage{listings} 		% pakiet do prezentacji kodu. 
+\usepackage{listings} 		% pakiet do prezentacji kodu.
+\usepackage{MnSymbol} 
+\lstdefinestyle{customcpp} {
+	belowcaptionskip=1\baselineskip,
+	language=C++,
+	basicstyle=\footnotesize\ttfamily,
+	frame=single,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	breakatwhitespace=true,
+	prebreak={ \space },
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
+	escapeinside={@}{@}
+}
+\lstset{style=customcpp}
+
+%\usepackage{minted}
 
 \clubpenalty=10000			%kara za sierotki
 \widowpenalty=10000			% nie pozostawiaj wdów
 \brokenpenalty=10000		% nie dziel wyrazów między stronami
 \exhyphenpenalty=999999		% nie dziel słów z myślnikiem
 \righthyphenmin=3			% dziel minimum 3 litery
+
+%\usepackage{polski}
+%\usepackage[draft,nosingleletter]{impnattypo}
 
 \renewcommand{\topfraction}{0.95}
 \renewcommand{\bottomfraction}{0.95}
@@ -125,7 +149,7 @@
 \usepackage{ifpdf}
 \ifpdf
 	\usepackage[pdftex,bookmarks,breaklinks,unicode]{hyperref}
-	\usepackage[pdftex]{graphicx}
+	%\usepackage[pdftex]{graphicx}
 	\DeclareGraphicsExtensions{.pdf,.jpg,.mps,.png}
 \pdfcompresslevel=9
 \pdfoutput=1
@@ -137,10 +161,8 @@
 		Author = {\@author},
 		Subject={},
 		Keywords={słowa kluczowe},
-		}
-    }
+		}}
 }
-
 \makeatother
 \else
 \usepackage{graphicx}
@@ -381,8 +403,8 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \begin{document}
 
 % Tutaj można przełączyć odstęp między liniami
-\SingleSpacing
-%\OnehalfSpacing
+%\SingleSpacing
+\OnehalfSpacing
 %\DoubleSpacing
 
 %\settypeoutlayoutunit{cm} % do debugowania
@@ -412,6 +434,10 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \chapterstyle{default}
 \include{rozdzial01}
 \include{rozdzial02}
+\include{rozdzial03}
+\include{rozdzial04}
+
+
 \bibliographystyle{plabbrv}
 
 %UWAGA: bibliotekę referencji należy przygotować samemu. Dobrym do tego narzędziem jest JabRef.

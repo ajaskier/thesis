@@ -1,0 +1,100 @@
+\chapter{Technologie wykorzystane w~systemie Gerbil}
+
+\index{C++} \section{C++}
+System Gerbil jest rozwijany w języku C++. 
+
+\index{STL} \subsection{STL}
+
+\index{Qt} \section{Qt}
+
+Qt jest platformą deweloperską wyposażoną w narzędzia pozwalające usprawnić proces wytwarzania oprogramowania oraz interfejsów użytkownika dla aplikacji desktopowych, wbudowanych bądź mobilnych.~\footnote{Qt 5.7 \url{http://doc.qt.io/qt-5/index.html}} 
+
+Platforma Qt posiada szerokie spektrum funkcjonalności. Między innymi są to:
+\begin{itemize}
+	\item system meta-obiektów,
+	\item mechanizm sygnałów i slotów służący do komunikacji pomiędzy obiektami,
+	\item wbudowany system przynależności obiektów,
+	\item wieloplatformowe wsparcie modułu wielowątkowości.
+		
+\end{itemize}
+
+W systemie Gerbil jest wykorzystywane Qt w wersji 5.7.
+
+\subsection{Sygnały i sloty}
+
+Spośród rozrzerzeń języka C++, jakie oferuje Qt na szczególną uwagę zasługuje mechanizm sygnałów i slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w sposób alternatywny do użycia wywołań zwrotnych. 
+
+Sygnał jest wysyłany, gdy nastąpi jakieś zdarzenie (np. naciśnięcie przycisku przez użytkownika), natomiast slot jest odpowiedzią na ten sygnał. Sygnatury sygnału i slotu muszą być zgodne. Mechanizm ten jest luźno powiązany (ang. loosely coupled). Oznacza to, że klasa emitująca sygnał nie musi być swiadoma klasy odbierającej. Sygnały i sloty pozwalają na przekazanie dowolnej liczby argumentów dowolnego typu. Sygnały muszą zostać zadeklarowane po słowie kluczowym \lstinline$signals$. Z jednym slotem można połączyć dowolną ilość sygnałów, i odwrotnie -- z jednym sygnałem można skojarzyć dowolną ilość slotów.
+
+Wszystkie klasy korzystające z tego mechanizmu muszą w swojej deklaracji zawierać makro \lstinline$Q_OBJECT$ oraz dziedziczyć (bezpośrednio bądź pośrednio) po klasie \lstinline$QObject$.~\footnote{Signals \& Slots | Qt Core 5.7 \url{http://doc.qt.io/qt-5/signalsandslots.html}}
+
+
+\subsubsection{Składnia} 
+Sposób tworzenia połączeń zostanie zilustrowany na przykładzie. Za punkt wyjścia posłużą dwie klasy: \lstinline$Sender$ (Listing \ref{sender}) oraz \lstinline$Receiver$ (Listing \ref{receiver}).
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=sender,caption=Klasa Sender]
+	class Sender : public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit Sender(QObject *parent = 0) : QObject(parent) {}
+		
+	signals:
+		void sendMessage(QString msg);
+		
+	};
+	\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=receiver, caption=Klasa Receiver]
+	class Receiver : public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit Receiver(QObject *parent = 0) : QObject(parent) {}
+		
+		void receiveMessageMethod(QString msg) {
+			std::cout << "got message in method: " << msg;
+		}
+		
+	public slots:
+		void receiveMessageSlot(QString msg) {
+			std::cout << "got message: " << msg;
+		}
+	};
+	\end{lstlisting}
+\end{minipage}
+
+Z analizy listingów \ref{sender} oraz \ref{receiver} wynika, że klasa \lstinline{Sender} zawiera sygnał \lstinline{sendMessage}, natomiast klasa \lstinline{Receiver} zawiera publiczną metodę \lstinline{receiveMessageMethod} oraz publiczny slot \lstinline{receiveMessageSlot}.
+
+W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a sygnałem, bądź sygnałem a slotem. Drugi rodzaj składni, wprowadzony w Qt5 pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i nowy zapis.
+
+%\begin{minipage}{\textwidth}
+
+	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami},alsoletter={()[].=}]
+  Sender sender;
+  Receiver receiver;
+  
+  //stara skladnia
+  //poprawne
+  QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageSlot(QString)));
+  //niepoprawne
+  QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageMethod(QString)));
+  
+  //nowa skladnia
+  QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageMethod);
+  QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageSlot);
+	\end{lstlisting}
+%\end{minipage}
+
+
+\subsection{Wątek GUI oraz wątki robocze}
+
+\index{boost} \section{boost}
+
+\index{TBB} \section{TBB}
+
+\index{OpenCV} \section{OpenCV}
+
