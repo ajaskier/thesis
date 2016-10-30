@@ -7,7 +7,7 @@ System Gerbil jest rozwijany w języku C++.
 
 \index{Qt} \section{Qt}
 
-Qt jest platformą deweloperską wyposażoną w narzędzia pozwalające usprawnić proces wytwarzania oprogramowania oraz interfejsów użytkownika dla aplikacji desktopowych, wbudowanych bądź mobilnych.~\footnote{Qt 5.7 \url{http://doc.qt.io/qt-5/index.html}} 
+Qt jest platformą deweloperską wyposażoną w narzędzia pozwalające usprawnić proces wytwarzania oprogramowania oraz interfejsów użytkownika dla aplikacji desktopowych, wbudowanych bądź mobilnych~\footnote{Dokumentacja Qt 5.7 \url{http://doc.qt.io/qt-5/index.html} (dostęp 30.10.2016).}.
 
 Platforma Qt posiada szerokie spektrum funkcjonalności. Między innymi są to:
 \begin{itemize}
@@ -20,13 +20,13 @@ Platforma Qt posiada szerokie spektrum funkcjonalności. Między innymi są to:
 
 W systemie Gerbil jest wykorzystywane Qt w wersji 5.7.
 
-\subsection{Sygnały i sloty}
+\index{sygnał} \index{slot} \subsection{Sygnały i sloty}
 
 Spośród rozrzerzeń języka C++, jakie oferuje Qt na szczególną uwagę zasługuje mechanizm sygnałów i slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w sposób alternatywny do użycia wywołań zwrotnych. 
 
 Sygnał jest wysyłany, gdy nastąpi jakieś zdarzenie (np. naciśnięcie przycisku przez użytkownika), natomiast slot jest odpowiedzią na ten sygnał. Sygnatury sygnału i slotu muszą być zgodne. Mechanizm ten jest luźno powiązany (ang. loosely coupled). Oznacza to, że klasa emitująca sygnał nie musi być swiadoma klasy odbierającej. Sygnały i sloty pozwalają na przekazanie dowolnej liczby argumentów dowolnego typu. Sygnały muszą zostać zadeklarowane po słowie kluczowym \lstinline$signals$. Z jednym slotem można połączyć dowolną ilość sygnałów, i odwrotnie -- z jednym sygnałem można skojarzyć dowolną ilość slotów.
 
-Wszystkie klasy korzystające z tego mechanizmu muszą w swojej deklaracji zawierać makro \lstinline$Q_OBJECT$ oraz dziedziczyć (bezpośrednio bądź pośrednio) po klasie \lstinline$QObject$.~\footnote{Signals \& Slots | Qt Core 5.7 \url{http://doc.qt.io/qt-5/signalsandslots.html}}
+Wszystkie klasy korzystające z tego mechanizmu muszą w swojej deklaracji zawierać makro \lstinline$Q_OBJECT$ oraz dziedziczyć (bezpośrednio bądź pośrednio) po klasie \lstinline$QObject$~\footnote{Dokumentacja Qt 5.7. Sygnały i Sloty \url{http://doc.qt.io/qt-5/signalsandslots.html} (dostęp 30.10.2016).}.
 
 
 \subsubsection{Składnia} 
@@ -71,7 +71,7 @@ Z analizy listingów \ref{sender} oraz \ref{receiver} wynika, że klasa \lstinli
 
 W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a sygnałem, bądź sygnałem a slotem. Drugi rodzaj składni, wprowadzony w Qt5 pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i nowy zapis.
 
-%\begin{minipage}{\textwidth}
+\begin{minipage}{\textwidth}
 
 	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami},alsoletter={()[].=}]
   Sender sender;
@@ -87,14 +87,31 @@ W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia.
   QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageMethod);
   QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageSlot);
 	\end{lstlisting}
-%\end{minipage}
+\end{minipage}
 
+Mechanizm sygnałów i slotów jest powszechnie wykorzystywany w systemie Gerbil do ustanownienia komunikacji pomiędzy obiektami. Używana jest zarówno stara jak i nowa składnia.
 
 \subsection{Wątek GUI oraz wątki robocze}
+GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w aplikacjach Qt). Interfejs użytkownika rozwijany w Qt musi zostać uruchomiony w tym wątku. Wszystkie widgety oraz kilka klas pochodnych nie zadziałają w wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń~\footnote{Dokumentacja Qt 5.7. Wątki: podstawy \url{http://doc.qt.io/qt-5/thread-basics.html\#gui-thread-and-worker-thread} (dostęp 30.10.2016).}. Gdyby te obliczenia zostały wykonane w głównym wątku, aplikacja przestałaby być responsywna na czas obliczeń. Efekt ten jest bardzo niepożądany.
 
-\index{boost} \section{boost}
+\index{Boost} \section{Boost}
+Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka~\footnote{Oficjalna strona Boost \url{http://www.boost.org/} (dostęp 30.10.2016).}. Wiele z bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
 
-\index{TBB} \section{TBB}
+
+
+\subsection{Boost.Any}
+W języku C++ kwestia przechowania obiektów dowolnego typu jest problematyczna, ponieważ jest to język statycznie typowany. 
+
+\subsubsection{\lstinline$void*$}
+W czystym C++ można użyć \lstinline$void*$. Do zmiennej typu \lstinline$void*$ można przypisać wskaźnik dowolnego typu poza wskaźnikiem do funkcji oraz wskaźnikiem do składowej. Aby użyć takiej zmiennej należy dokonać jawnej konwersji \lstinline$static_cast$. Do zastosowania \lstinline$void*$ w kodzie wysokopoziomowym należy podchodzić z rezerwą. Może to wskazywać na błędy projektowe.~\footnote{Stroustrup B., Język C++. Kompendium wiedzy, Wydawnictwo Helion, Gliwice, 2014.}
+
+\subsubsection{\lstinline$boost::any$}
+Rozwiązaniem, które z powodzeniem można stosować w kodzie wysokopoziomowym jest właśnie klasa \lstinline$boost::any$. Jego zdecydowaną przewagą nad \lstinline$void*$ jest bezpieczny typowo interfejs. Jest to kontener opakowujący pojedynczy obiekt niemal dowolnego typu (obiekt musi być \lstinline$copy-constructible$ - posiadać możliwość inicjalizacji na bazie innego objektu tego typu).
+Aby użyć obiektu przechowywanego przez \lstinline$boost::any$ należy dokonać rzutowania \lstinline$boost::any_cast$. Jeżeli zostanie podany typ, na który obiekt nie może zostać zrzutowany, zostanie zgłoszony wyjątek \lstinline$boost::bad_any_cast$
+~\footnote{Dokumentacja Boost 1.62.0 Boost.Any \url{http://www.boost.org/doc/libs/1_62_0/doc/html/any.html} (dostęp 30.10.2016).}
+~\footnote{Spis bibliotek Boost \url{http://www.boost.org/doc/libs/} (dostęp 30.10.2016).}.
+
+\index{TBB} \section{Intel Threading Building Blocks}
 
 \index{OpenCV} \section{OpenCV}
 
