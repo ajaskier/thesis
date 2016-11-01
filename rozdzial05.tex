@@ -1,0 +1,89 @@
+\chapter{Projekt nowego systemu}
+
+\section{Zarys projektu}
+Nowy system opiera się na komponencie zwanym Subscription Manager (SM). Jest on właścicielem wszystkich współdzielonych danych. Pozostałe komponenty uzyskują dostęp do danych przez obiekty nazywane Subscription. Prawa dostępu są przyznawane oraz kontrolowane przez SM. Dane tworzą graf zależności, który zapewnia automatyczne obliczanie potrzebnych danych. Komponenty typu Creator (odpowiedniki modeli we wzorcu MVC) kontrolują proces powstawania danej poprzez tworzenie odpowiednio sparametryzowanych zadań. Utworzone zadania trafiają do komponentu Task Scheduler, który wykonuje je w osobnym wątku.
+
+\section{Subscription oraz Subscription Manager}
+
+Subscription Manager pełni rolę jednostki głównej w systemie. Jest odpowiedzialny za:
+\begin{itemize}
+	\item zarządzanie cyklem życia danych,
+	\item przyznawanie dostępu do danych,
+	\item kontrolę wewnętrznego stanu danych
+\end{itemize}
+
+
+
+\subsection{Model danych współdzielonych}
+Ważne jest aby do roli danej współdzielonej można było promować każdą daną w systemie. Dlatego model danej współdzielonej nie może opierać się na interfejsie, który inne klasy by implementowały, lecz na opakowaniu, w które można każdą daną włożyć. Klasa danych współdzielonych nazwana została \lstinline$DataEntry$.
+
+
+\subsubsection{Przechowywanie danych}
+Kwestię przechowania dowolnego typu można rozwiązać poprzez wykorzystanie \lstinline$boost::any$. Natomiast problem uchwytu do danych, którego można użyć w różnych fragmentach kodu rozwiązuje \lstinline$std::shared_ptr$. Z tego powodu \lstinline$std::shared_ptr<boost::any>$ stanowi trzon modelu danych współdzielonych. Zarówno dane jak i towarzyszące im metadane są przechowywane w ten sposób. 
+ 
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataentry:alias, caption={Aliasy używane w kodzie aplikacji},alsoletter={()[].=}]
+using handle = std::shared_ptr<boost::any>;
+using handle_pair = std::tuple<handle, handle>;
+	\end{lstlisting}
+\end{minipage}
+
+Aby kod był bardziej zwięzły stosowane są w nim aliasy (Listing \ref{dataentry:alias}). Pierwsza linia jest skróceniem zapisu typu uchwytu do danych, natomiast druga skraca zapis pary takich uchwytów (para uchwytów często jest wykorzysytywana do reprezentacji danych zagregowanych z metadanymi).
+
+\subsubsection{Synchronizacja dostępu do danych}
+Rozwiązanie to jednak nie likwiduje problemu synchronizacji dostępu do danych. Wobec tego model został wzbogacony o muteks oraz dwie zmienne warunkowe (Listing \ref{dataentry:sync}). Pierwsza zmienna warunkowa - \lstinline$not_reading$ służy do obsłużenia wątków oczekujących na dostęp do danych w celu zapisu, natomiast druga \lstinline$not_writing$ do obsługi wątków oczekujących na dostęp do danych w celu odczytu.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataentry:sync, caption={Składowe klasy \lstinline$DataEntry$ zapewniające bezpieczne użycie w środowisku wielowątkowym},alsoletter={()[].=}]
+std::mutex mu;
+std::condition_variable not_reading;
+std::condition_variable not_writing;
+	\end{lstlisting}
+\end{minipage}
+
+Z pomocą tych narzędzi model udostępnia metody pozwalające na bezpieczny dostęp do danych w aplikacji wielowątkowej.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataentry:sync:read, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny odczyt danych współdzielonych w środowisku wielowątkowym},alsoletter={()[].=}]
+handle_pair DataEntry::read()
+{
+	std::unique_lock<std::mutex> lock(mu);
+	not_writing.wait(lock, [this]() {
+		return !doWrite && initialized;
+	});
+	return handle_pair(data_handle, meta_handle);
+}
+
+void DataEntry::endRead()
+{
+	if (doReads == 0) not_reading.notify_one();
+}
+	\end{lstlisting}
+\end{minipage}
+
+Na listingu \ref{dataentry:sync:read} widoczna jest implementacja metod realizujących dostęp do danych w celu odczytu. 
+
+W metodzie \lstinline$read$ tworzona jest blokada, która zajmuje mutex. Następnie wątek wywołujący metodę zostaje uśpione do momentu powiadomienia przez zmienną warunkową. Aby uniknąć fałszywych wybudzeń przekazywana jest dodatkowo lambda, która służy za predykat. Jeśli wartość zwrócona przez lambdę jest prawdziwa (zawarte jest w niej sprawdzenie czy wewnętrzny stan danej jest prawidłowy), wówczas wybudzenie jest słuszne. Po wybudzeniu zostaje zwrócona para uchwytów -- do danej oraz metadanej.
+
+Metoda \lstinline$endRead$ służy do sygnalizacji zakończenia odczytu. W jej ciele wykonywane jest sprawdzenie czy wewnętrzny stan danej jest prawidłowy. Jeśli jest, wówczas zmienna warunkowa \lstinline$not_reading$ dokonuje przebudzenia jednego z wątków oczekujących na dostęp do danych w celu zapisu.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataentry:sync:write, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny zapis danych współdzielonych w środowisku wielowątkowym},alsoletter={()[].=}]
+handle_pair DataEntry::write()
+{
+	std::unique_lock<std::mutex> lock(mu);
+	not_reading.wait(lock, [this]() {
+		return doReads == 0 && !doWrite;
+	});
+
+	return handle_pair(data_handle, meta_handle);
+}
+
+void DataEntry::endWrite()
+{
+	if (!doWrite) not_writing.notify_all();
+}
+	\end{lstlisting}
+\end{minipage}
+
+Analizując implementację metod pozwalających na bezpieczny zapis danych przedstawionych na listingu \ref{dataentry:sync:write} można dostrzec dużą analogie do metod z listingu \ref{dataentry:sync:read}. Jedyną zasadniczą różnicą jest fakt, że po zakończeniu zapisu zmienna warunkowa \lstinline$not_writing$ budzi wszystkie wątki oczekujące na dostęp w celu odczytu.

@@ -19,6 +19,7 @@
 
 \renewcommand*\ttdefault{txtt}
 
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \usepackage{listings} 		% pakiet do prezentacji kodu.
 \usepackage{MnSymbol} 
 \lstdefinestyle{customcpp} {
@@ -32,7 +33,11 @@
 	breakatwhitespace=true,
 	prebreak={ \space },
 	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
-	escapeinside={@}{@}
+	escapeinside={@}{@},
+	numbers=left,
+	xleftmargin=2em,
+	framexleftmargin=2em,
+	linewidth=\textwidth
 }
 \lstset{style=customcpp}
 
@@ -436,6 +441,7 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \include{rozdzial02}
 \include{rozdzial03}
 \include{rozdzial04}
+\include{rozdzial05}
 
 
 \bibliographystyle{plabbrv}

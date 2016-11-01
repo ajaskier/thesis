@@ -63,3 +63,9 @@ Analizując rysunek ~\ref{fig:data-dependencies} można dojść do wniosku, że 
 	\item image.GRADPCA. \label{last-item}
 \end{enumerate}
 
+Scenariusz ten zakłada obliczenie każdej danej w hierarchii, co jest przypadkiem skrajnym. Często zdarza się, że pewna część danych jest aktualna. Wówczas przetwarzanie powinno rozpocząć się od nieaktualnej danej, znajdującej się najwyżej w hierarchii. 
+
+Dodatkowo, należy rozpatrzeć scenariusz równoległego wykonywania zadań. Zakładając, że aplikacja wyświetla jednocześnie dane image.NORM oraz image.GRAD, natomiast image.IMG zostało odświeżone, można dojść do wniosku, że system powinien w następnym kroku dokonać obliczeń obu danych (image.NORM i image.GRAD). Obliczenia te można wykonać szeregowo bądź równolegle, wobec tego można zdefiniować opcjonalne wymaganie dla systemu zarządzania zadaniami:
+\begin{itemize}
+	\item obsługa równoległego przetwarzania zadań.
+\end{itemize}

@@ -1,9 +1,30 @@
 \chapter{Technologie wykorzystane w~systemie Gerbil}
 
 \index{C++} \section{C++}
-System Gerbil jest rozwijany w języku C++. 
+System Gerbil jest rozwijany w języku C++. Jest to język programowania ogólnego przeznaczenia, ze szczególnym zastosowaniem w tworzeniu systemów. C++ to język: 
+\begin{itemize}
+	\item wieloparadygmatowy -- pozwala na programowanie proceduralne, obiektowe, funkcyjne oraz ogólne,
+	\item statycznie typowany -- zgodność typów jest sprawdzana w trakcie kompilacji,
+	\item pozwalający na bezpośrednie zarządzanie pamięcią,
+	\item tworzony według zasady zerowego narzutu - elementy tego języka oraz proste abstrakcje muszą być optymalne (nie marnować bajtów pamięci ani cyklów procesora),
+	\item umożliwiający tworzenie lekkich i wydajnych abstrakcji~\footnote{Stroustrup B., Język C++. Kompendium wiedzy, Wydawnictwo Helion, Gliwice, 2014.}
+	~\footnote{Krótki opis języka C++ \url{http://www.cplusplus.com/info/description} (dostęp 31.10.2016)}.
+\end{itemize}
+
+Język o takiej charakterystyce jest dobrym wyborem do implementacji systemu analizy i wizualizacji skomplikowanych danych.
 
 \index{STL} \subsection{STL}
+STL (ang. Standard Template Library) jest biblioteką standardową języka C++. Oferuje ona szereg kontenerów, klas, obiektów funkcyjnych oraz algorytmów. Składniki te opisane są w standardzie ISO języka C++, oraz gwarantują identyczne zachowanie w każdej implementacji~\footnote{Stroustrup B., Język C++. Kompendium wiedzy, Wydawnictwo Helion, Gliwice, 2014.}. Ułatwia to tworzenie aplikacji wieloplatformowych.Dzięki gotowym rozwiązaniom zawartym w bibliotece standardowej, proces wytwarzania oprogramowania zyskuje na prostocie i efektywności. 
+
+\index{shared\_ptr} \subsubsection{\lstinline$shared_ptr$}
+\lstinline$shared_ptr$ jest typem umożliwiającym reprezentację właśności wspólnej. Wykorzystywany jest w sytuacjach, gdy dwa (lub więcej) fragmenty kodu wymagają dostępu do danych, podczas gdy żaden nie jest odpowiedzialny za usunięcie tych danych. Obiekt \lstinline$shared_ptr$ jest rodzajem wskaźnika z licznikiem wystąpień. Jeśli liczba obiektów wskazujących na konkretną daną spadnie do zera, dana ta jest usuwana~\footnote{Stroustrup B., Język C++. Kompendium wiedzy, Wydawnictwo Helion, Gliwice, 2014.}. 
+
+\index{mutex} \subsubsection{\lstinline$mutex$}
+Muteks jest obiektem typu \lstinline$mutex$, służącym do reprezentowania wyłącznych praw dostępu do konkretnego zasobu. Wykorzystuje się go do ochrony przed wyścigami do danych oraz synchronizacji dostępu do dancyh współdzielonych między wątkami.
+
+Muteks może być w posiadaniu tylko jednego wątku na raz. Zajęcie muteksu jest równoznaczne z nabyciem wyłącznych praw własności do niego. Operacja zajmowania muteksu jest blokująca. Zwolnienie muteksu oznacza zrzeczenie się z prawa własności do niego. Daje to możliwość zajęcia muteksu przez inne oczekujące wątki~\footnote{Stroustrup B., Język C++. Kompendium wiedzy, Wydawnictwo Helion, Gliwice, 2014.}.
+
+\subsubsection{\lstinline$condition_variable$}
 
 \index{Qt} \section{Qt}
 
@@ -22,7 +43,7 @@ W systemie Gerbil jest wykorzystywane Qt w wersji 5.7.
 
 \index{sygnał} \index{slot} \subsection{Sygnały i sloty}
 
-Spośród rozrzerzeń języka C++, jakie oferuje Qt na szczególną uwagę zasługuje mechanizm sygnałów i slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w sposób alternatywny do użycia wywołań zwrotnych. 
+Spośród rozrzerzeń języka C++, jakie oferuje Qt, na szczególną uwagę zasługuje mechanizm sygnałów i slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w sposób alternatywny do użycia wywołań zwrotnych. 
 
 Sygnał jest wysyłany, gdy nastąpi jakieś zdarzenie (np. naciśnięcie przycisku przez użytkownika), natomiast slot jest odpowiedzią na ten sygnał. Sygnatury sygnału i slotu muszą być zgodne. Mechanizm ten jest luźno powiązany (ang. loosely coupled). Oznacza to, że klasa emitująca sygnał nie musi być swiadoma klasy odbierającej. Sygnały i sloty pozwalają na przekazanie dowolnej liczby argumentów dowolnego typu. Sygnały muszą zostać zadeklarowane po słowie kluczowym \lstinline$signals$. Z jednym slotem można połączyć dowolną ilość sygnałów, i odwrotnie -- z jednym sygnałem można skojarzyć dowolną ilość slotów.
 
@@ -34,36 +55,36 @@ Sposób tworzenia połączeń zostanie zilustrowany na przykładzie. Za punkt wy
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=sender,caption=Klasa Sender]
-	class Sender : public QObject
-	{
-		Q_OBJECT
-	public:
-		explicit Sender(QObject *parent = 0) : QObject(parent) {}
-		
-	signals:
-		void sendMessage(QString msg);
-		
-	};
+class Sender : public QObject
+{
+	Q_OBJECT
+public:
+	explicit Sender(QObject *parent = 0) : QObject(parent) {}
+	
+signals:
+	void sendMessage(QString msg);
+	
+};
 	\end{lstlisting}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=receiver, caption=Klasa Receiver]
-	class Receiver : public QObject
-	{
-		Q_OBJECT
-	public:
-		explicit Receiver(QObject *parent = 0) : QObject(parent) {}
-		
-		void receiveMessageMethod(QString msg) {
-			std::cout << "got message in method: " << msg;
-		}
-		
-	public slots:
-		void receiveMessageSlot(QString msg) {
-			std::cout << "got message: " << msg;
-		}
-	};
+class Receiver : public QObject
+{
+	Q_OBJECT
+public:
+	explicit Receiver(QObject *parent = 0) : QObject(parent) {}
+	
+	void receiveMessageMethod(QString msg) {
+		std::cout << "got message in method: " << msg;
+	}
+	
+public slots:
+	void receiveMessageSlot(QString msg) {
+		std::cout << "got message: " << msg;
+	}
+};
 	\end{lstlisting}
 \end{minipage}
 
@@ -74,18 +95,18 @@ W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia.
 \begin{minipage}{\textwidth}
 
 	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami},alsoletter={()[].=}]
-  Sender sender;
-  Receiver receiver;
-  
-  //stara skladnia
-  //poprawne
-  QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageSlot(QString)));
-  //niepoprawne
-  QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageMethod(QString)));
-  
-  //nowa skladnia
-  QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageMethod);
-  QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageSlot);
+Sender sender;
+Receiver receiver;
+
+//stara skladnia
+//poprawne
+QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageSlot(QString)));
+//niepoprawne
+QObject::connect(&sender, SIGNAL(sendMessage(QString)), &receiver, SLOT(receiveMessageMethod(QString)));
+
+//nowa skladnia
+QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageMethod);
+QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMessageSlot);
 	\end{lstlisting}
 \end{minipage}
 
@@ -112,6 +133,11 @@ Aby użyć obiektu przechowywanego przez \lstinline$boost::any$ należy dokonać
 ~\footnote{Spis bibliotek Boost \url{http://www.boost.org/doc/libs/} (dostęp 30.10.2016).}.
 
 \index{TBB} \section{Intel Threading Building Blocks}
+Intel Threading Building Blocks (TBB) jest biblioteką szablonów ułatwiającą programowanie równoległe. W swojej ofercie posiada gotowe struktury danych oraz zrównoleglone algorytmy~\footnote{Oficjalna strona Threading Building Blocks \url{https://www.threadingbuildingblocks.org/} (dostęp 31.10.2016).}.
+
+W systemie Gerbil biblioteka TBB używana jest głownie do implementacji algorytmów przetwarzania obrazów wielospektralnych.
 
 \index{OpenCV} \section{OpenCV}
+OpenCV (Open Source Computer Vision Library) to biblioteka przeznaczona do rozpoznawania obrazów oraz uczenia maszynowego~\footnote{Oficjalna strona OpenCV \url{http://opencv.org/about.html} (dostęp 31.10.2016).}.
 
+Biblioteka ta znajduje wykorzystanie w systemie Gerbil jako bogata baza struktur danych wykorzystywanych do przetwarzania obrazów oraz zaawansowanych algorytmów rozpoznawanai obrazów.
