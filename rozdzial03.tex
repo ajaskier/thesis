@@ -90,7 +90,7 @@ public slots:
 
 Z analizy listingów \ref{sender} oraz \ref{receiver} wynika, że klasa \lstinline{Sender} zawiera sygnał \lstinline{sendMessage}, natomiast klasa \lstinline{Receiver} zawiera publiczną metodę \lstinline{receiveMessageMethod} oraz publiczny slot \lstinline{receiveMessageSlot}.
 
-W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a sygnałem, bądź sygnałem a slotem. Drugi rodzaj składni, wprowadzony w Qt5 pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i nowy zapis.
+W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a sygnałem, bądź sygnałem a slotem. Drugi rodzaj składni, wprowadzony w Qt5, pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i nowy zapis.
 
 \begin{minipage}{\textwidth}
 
@@ -113,7 +113,7 @@ QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMes
 Mechanizm sygnałów i slotów jest powszechnie wykorzystywany w systemie Gerbil do ustanownienia komunikacji pomiędzy obiektami. Używana jest zarówno stara jak i nowa składnia.
 
 \subsection{Wątek GUI oraz wątki robocze}
-GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w aplikacjach Qt). Interfejs użytkownika rozwijany w Qt musi zostać uruchomiony w tym wątku. Wszystkie widgety oraz kilka klas pochodnych nie zadziałają w wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń~\footnote{Dokumentacja Qt 5.7. Wątki: podstawy \url{http://doc.qt.io/qt-5/thread-basics.html\#gui-thread-and-worker-thread} (dostęp 30.10.2016).}. Gdyby te obliczenia zostały wykonane w głównym wątku, aplikacja przestałaby być responsywna na czas obliczeń. Efekt ten jest bardzo niepożądany.
+GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w osobnym wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w aplikacjach Qt). Interfejs użytkownika rozwijany w Qt musi zostać uruchomiony w tym wątku. Wszystkie widgety oraz kilka klas pochodnych nie zadziałają w wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń~\footnote{Dokumentacja Qt 5.7. Wątki: podstawy \url{http://doc.qt.io/qt-5/thread-basics.html\#gui-thread-and-worker-thread} (dostęp 30.10.2016).}. Gdyby te obliczenia były wykonywane w głównym wątku, aplikacja przestałaby być responsywna na czas obliczeń, co jest efektem niepożądanym.
 
 \index{Boost} \section{Boost}
 Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka~\footnote{Oficjalna strona Boost \url{http://www.boost.org/} (dostęp 30.10.2016).}. Wiele z bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
@@ -140,4 +140,4 @@ W systemie Gerbil biblioteka TBB używana jest głownie do implementacji algoryt
 \index{OpenCV} \section{OpenCV}
 OpenCV (Open Source Computer Vision Library) to biblioteka przeznaczona do rozpoznawania obrazów oraz uczenia maszynowego~\footnote{Oficjalna strona OpenCV \url{http://opencv.org/about.html} (dostęp 31.10.2016).}.
 
-Biblioteka ta znajduje wykorzystanie w systemie Gerbil jako bogata baza struktur danych wykorzystywanych do przetwarzania obrazów oraz zaawansowanych algorytmów rozpoznawanai obrazów.
+Biblioteka ta znajduje wykorzystanie w systemie Gerbil jako bogata baza struktur danych wykorzystywanych do przetwarzania obrazów oraz zaawansowanych algorytmów rozpoznawania obrazów.

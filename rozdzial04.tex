@@ -17,7 +17,7 @@ Podział tych ról można zaobserwować na rysunku ~\ref{fig:mvc}.
 	\label{fig:mvc}	
 \end{figure}
 
-Dzięki wykorzystaniu tego wzorca sposób, w jakim przechowywane są dane nie ma wpływu na to jak są one przedstawione użytkownikowi~\footnote{Dokumentacja Qt 5.7. Programowanie Model/Widok \url{http://doc.qt.io/qt-5/model-view-programming.html} (dostęp 30.10.2016).}.
+Dzięki wykorzystaniu tego wzorca sposób przechowywania danych nie ma wpływu na to jak są one przedstawione użytkownikowi~\footnote{Dokumentacja Qt 5.7. Programowanie Model/Widok \url{http://doc.qt.io/qt-5/model-view-programming.html} (dostęp 30.10.2016).}.
 
 \section {Architektura aplikacji Gerbil}
 
@@ -30,7 +30,7 @@ W aplikacji Gerbil wzorzec MVC zastosowano w sposób klasyczny:
 
 Dodatkowo w aplikacji występuje wątek roboczy. W nim uruchomiona jest kolejka zadań. Zadanie (Task) jest komponentem realizującym wykonanie czasochłonnego algorytmu analizy danych. Modele tworzą zadania i przekazują je do kolejki. Kolejka przyjmuje zadania i wykonuje je po kolei. W ten sposób skomplikowane obliczenia nie blokują wątku GUI, które pozostaje przez cały czas responsywne.
 
-W takiej architekturze pojawia się problem dostępu do danych, ponieważ dwa wątki (wątek GUI, w którym znajdują się komponenty MVC oraz wątek roboczy, w którym wykonywane są zadania) próbują uzyskać dostęp do tych samych danych. Zadania wykonywane w tle powinny w bezpieczny sposób dokonywać zapisu danych. Widoki zaś powinny być w stanie bezawaryjnie wizualizować dane oraz zadbać o aktualność prezentowanych danych.
+W takiej architekturze pojawia się problem dostępu do danych, ponieważ dwa wątki (wątek GUI, w którym znajdują się komponenty MVC, oraz wątek roboczy, w którym wykonywane są zadania) próbują uzyskać dostęp do tych samych danych. Zadania wykonywane w tle powinny w bezpieczny sposób dokonywać zapisu danych. Widoki zaś powinny być w stanie bezawaryjnie wizualizować dane oraz dbać o aktualność prezentowanych danych.
 
 \subsection{Wady architektury}
 
@@ -41,9 +41,9 @@ System ten jest mocno zdecentralizowany. Na barkach kontrolerów spoczywa odpowi
 	\item podjęcia niewłaściwej decyzji.
 \end{itemize}
 
-Zarządzanie zadaniami również jest wadliwe. W razie gdy użytkownik poprzez interakcję z systemem zleci wykonanie kilku zadań na raz, które dokonują obliczeń na tych samych danych, system może zachować się w sposób nieoczekiwany. Prowadzi to do zakończenia aplikacji z powodu naruszenia pamięci. W najgorszym wypadku powinien zakolejkować te zadania i wykonać jedno po drugim.
+Zarządzanie zadaniami również jest wadliwe. W razie gdy użytkownik poprzez interakcję z systemem zleci wykonanie kilku zadań na raz, które dokonują obliczeń na tych samych danych, system może zachować się w sposób nieoczekiwany. Prowadzi to do zakończenia aplikacji z powodu naruszenia pamięci. Nowa wersja systemu powinna w najgorszym wypadku zakolejkować te zadania i wykonać jedno po drugim.
 
-Wiele komponentów interfejsu użytkownika przechowuje własne uchwyty do danych oraz ewentualnie muteks. Wobec tego same dokonują synchronizacji lub nie robią tego wcale. Nieprzemyślany model doprowadził do wielu patologi. Przykład stanowi używanie współdzielonych wskaźników do przekazywania danych, które z założenia już powinny być współdzielone.
+Wiele komponentów interfejsu użytkownika przechowuje własne uchwyty do danych oraz ewentualnie muteks. Wobec tego same dokonują synchronizacji lub nie robią tego wcale. Nieprzemyślany model doprowadził do wielu patologi. Przykład stanowi używanie współdzielonych wskaźników do przekazywania danych, podczas gdy dane te z założenia powinny być współdzielone.
 
 \subsubsection{Konkluzja}
 

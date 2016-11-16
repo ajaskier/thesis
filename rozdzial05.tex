@@ -1,24 +1,20 @@
 \chapter{Projekt nowego systemu}
 
 \section{Zarys projektu}
-Nowy system opiera się na komponencie zwanym Subscription Manager (SM). Jest on właścicielem wszystkich współdzielonych danych. Pozostałe komponenty uzyskują dostęp do danych przez obiekty nazywane Subscription. Prawa dostępu są przyznawane oraz kontrolowane przez SM. Dane tworzą graf zależności, który zapewnia automatyczne obliczanie potrzebnych danych. Komponenty typu Creator (odpowiedniki modeli we wzorcu MVC) kontrolują proces powstawania danej poprzez tworzenie odpowiednio sparametryzowanych zadań. Utworzone zadania trafiają do komponentu Task Scheduler, który wykonuje je w osobnym wątku.
+Nowy system opiera się na komponencie zwanym Subscription Manager (SM). Jest on właścicielem wszystkich współdzielonych danych. Pozostałe komponenty uzyskują dostęp do danych przez obiekty nazywane Subscription (Subskrypcja). Prawa dostępu są przyznawane oraz kontrolowane przez SM. Dane tworzą graf zależności, który zapewnia automatyczne obliczanie potrzebnych danych. Komponenty typu Creator (odpowiedniki modeli we wzorcu MVC) kontrolują proces powstawania danej poprzez tworzenie odpowiednio sparametryzowanych zadań. Utworzone zadania trafiają do komponentu Task Scheduler, który zarządza ich wykonaniem.
 
-\section{Subscription oraz Subscription Manager}
+\subsection{Przepływ danych w systemie} % TUTAJ ZDECYDOWAĆ SIĘ NA JEDNO ALBO DRUGIE (TO ALBO TO POWYŻEJ)
 
-Subscription Manager pełni rolę jednostki głównej w systemie. Jest odpowiedzialny za:
-\begin{itemize}
-	\item zarządzanie cyklem życia danych,
-	\item przyznawanie dostępu do danych,
-	\item kontrolę wewnętrznego stanu danych
-\end{itemize}
+
+Obliczenia danych są wywoływane poprzez interakcję użytkownika z interfejsem graficznym. Dane są wizualizowane w konkretnych panelach. W celu prezentacji danych użytkownik musi aktywować dany panel. Z punktu widzenia systemu panel jest komponentem żądającym dostępu do danej w celu odczytu. W kodzie panela tworzony jest obiekt subskrypcji, który stanowi definicję takiego żądania. Obiekty tego typu stanowią interfejs pomiędzy komponentami żądającymi dostępu do danych a Subscription Managerem. Jeżeli dane są aktualne, panel otrzymuje stosowną informację. W ciele obsługi tej informacji dokonywany jest faktyczny dostęp do danych, dzięki czemu dana zostaje zaprezentowana w GUI. Możliwy jest również scenariusz, w którym żądana dana nie jest aktualna, bądź nie została jeszcze zainicjalizowana. Wówczas system wysyła informację do odpowiedniego komponentu typu Creator, który zadeklarował umiejętność wytworzenia tej danej. Komponent w odpowiedzi na informację tworzy obiekt Zadania oraz przekazuje go do Task Scheduler'a. Każdy obiekt zadania posiada pewne zależności wobec danych. Minimum stanowi żądanie dostępu do danej, która ma zostać obliczona, w celu zapisu. Zazwyczaj zależności dopełniają żądania dostępu do odczytu danych, od których obliczana dana zależy (o ile zależy). Task Scheduler tworzy odpowiednie obiekty subskrypcji dla danego zadania, na podstawie jego sygnatury zależnosci. Akcja ta może prowadzić do powstania kolejnych obiektów zadań (jeżeli zadanie żąda dostępu do danej, która również nie jest aktualna). Task Scheduler uruchamia powstałe zadania w osobnych wątkach. W momencie gdy dana zarządana przez użytkownika zostanie finalnie obliczona, panel GUI otrzymuje stosowną informację i może dokonać jej prezentacji.
 
 
 
-\subsection{Model danych współdzielonych}
+\section{Model danych współdzielonych}
 Ważne jest aby do roli danej współdzielonej można było promować każdą daną w systemie. Dlatego model danej współdzielonej nie może opierać się na interfejsie, który inne klasy by implementowały, lecz na opakowaniu, w które można każdą daną włożyć. Klasa danych współdzielonych nazwana została \lstinline$DataEntry$.
 
 
-\subsubsection{Przechowywanie danych}
+\subsection{Przechowywanie danych}
 Kwestię przechowania dowolnego typu można rozwiązać poprzez wykorzystanie \lstinline$boost::any$. Natomiast problem uchwytu do danych, którego można użyć w różnych fragmentach kodu rozwiązuje \lstinline$std::shared_ptr$. Z tego powodu \lstinline$std::shared_ptr<boost::any>$ stanowi trzon modelu danych współdzielonych. Zarówno dane jak i towarzyszące im metadane są przechowywane w ten sposób. 
  
 \begin{minipage}{\textwidth}
@@ -30,7 +26,7 @@ using handle_pair = std::tuple<handle, handle>;
 
 Aby kod był bardziej zwięzły stosowane są w nim aliasy (Listing \ref{dataentry:alias}). Pierwsza linia jest skróceniem zapisu typu uchwytu do danych, natomiast druga skraca zapis pary takich uchwytów (para uchwytów często jest wykorzysytywana do reprezentacji danych zagregowanych z metadanymi).
 
-\subsubsection{Synchronizacja dostępu do danych}
+\subsection{Synchronizacja dostępu do danych}
 Rozwiązanie to jednak nie likwiduje problemu synchronizacji dostępu do danych. Wobec tego model został wzbogacony o muteks oraz dwie zmienne warunkowe (Listing \ref{dataentry:sync}). Pierwsza zmienna warunkowa - \lstinline$not_reading$ służy do obsłużenia wątków oczekujących na dostęp do danych w celu zapisu, natomiast druga \lstinline$not_writing$ do obsługi wątków oczekujących na dostęp do danych w celu odczytu.
 
 \begin{minipage}{\textwidth}
@@ -87,3 +83,109 @@ void DataEntry::endWrite()
 \end{minipage}
 
 Analizując implementację metod pozwalających na bezpieczny zapis danych przedstawionych na listingu \ref{dataentry:sync:write} można dostrzec dużą analogie do metod z listingu \ref{dataentry:sync:read}. Jedyną zasadniczą różnicą jest fakt, że po zakończeniu zapisu zmienna warunkowa \lstinline$not_writing$ budzi wszystkie wątki oczekujące na dostęp w celu odczytu.
+
+\section{Subscription oraz Subscription Manager}
+
+Subscription Manager pełni rolę jednostki głównej w systemie. Jest on abstrakcją o poziom wyższą niż dane współdzielone. Komponent ten agreguje wszystkie takie dane oraz nimi zarządza. Do jego odpowiedzialności należą:
+\begin{itemize}
+	\item przyznawanie dostępu do danych,
+	\item propagacja informacji o dostępności nowej wersji danych,
+	\item propagacja informacji o żądaniu obliczeń nowych danych,
+	\item zarządzanie cyklem życia danych,
+	\item kontrola wewnętrznego stanu danych.
+\end{itemize}
+
+%Aby wyjaśnić funkcjonalności Subscription Managera, należy najpierw omówić przepływ danych w systemie. 
+
+
+
+\section{Kreator (Creator)}
+
+Kreator jest klasą semantycznie zbliżoną do Modelu z wzorca MVC. Zadaniem kreatora jest kontrola procesu wytworzenia danej. Interfejs zdefiniowany dla kreatora został przedstawiony na listingu \ref{creatorInterface}.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=creatorInterface, caption={Interfejs klasy \lstinline$Creator$},alsoletter={()[].=}]
+class Creator : public QObject
+{
+	Q_OBJECT
+public:
+	explicit Creator(SubscriptionManager& sm, TaskScheduler* scheduler,
+						QObject *parent = 0);
+	virtual ~Creator();
+
+public slots:
+	virtual void delegateTask(QString requestedId,
+								QString parentId = "") = 0;
+	void taskFinished(QString id, bool success);
+
+protected:
+	void registerData(QString dataId,
+						std::vector<QString> dependencies);
+	bool isTaskCurrent(QString id);
+
+private:
+	SubscriptionManager& sm;
+	TaskScheduler* scheduler;
+	
+	std::map<QString, std::shared_ptr<Task>> tasks;
+
+};
+	\end{lstlisting}
+\end{minipage}
+
+
+Metoda \lstinline$registerData$ służy do rejestrowania danych. Za jej pomocą kreator zgłasza współdzielone dane, za które bierze odpowiedzialność. Każda dana współdzielona, aby istnieć w systemie, musi zostać zarejestrowana przez któryś z kreatorów. Do zarejestrowania danej wymagane jest jej ID oraz lista ID danych, od której owa dana jest zależna. Na listingu \ref{creator:registerData} został przedstawiony przykład rejestrowania współdzielonych. W pierwszych dwóch liniach zarejestrowane zostały dane, które są niezależne (lista ich zależności jest pusta). W trzeciej lini jest wyrażona rejestracja danej \lstinline$image.IMG$ oraz jej zależności od danych \lstinline$image$ oraz \lstinline$ROI$. Dzięki takiemu formatowi rejestrowania danych system jest w stanie stworzyć graf zależności danych, wykorzystywany do prawidłowej propagacji informacji.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=creator:registerData, caption={Przykłady rejestrowania danych},alsoletter={()[].=}]
+registerData("image", {});
+registerData("ROI", {});
+registerData("image.IMG", {"image", "ROI"});
+	\end{lstlisting}
+\end{minipage}
+
+Z analizy listingu \ref{creatorInterface} wynika, że klasa implementująca interfejs Kreatora musi zdefiniować metodę \lstinline$delegateTask$ aby nie być klasą abstrakcyjną. Metoda ta jest kluczowa dla tego interfejsu, oraz bardzo ważna dla całego systemu. Ciało tej metody powinna stanowić obsługa żądania W definicji tej metody powinna znaleźć się obsługa żądania dokonania obliczeń danych. Żądanie takie może płynąć bezpośrednio od użytkownika, bądź w sposób pośredni, na skutek wewnętrznego mechanizmu systemu. Standardowym zachowaniem kreatora jest utworzenie odpowiedniego obiektu Zadania i przekazanie go do Task Scheduler'a. Teoretycznie możliwe jest, aby kreator sam dokonał obliczenia danej, zamiast tworzyć obiekt Zadania. Ta metoda jednak nie jest zalecana. Dopuszcza się jej stosowanie jedynie w przypadku nieskomplikowanych obliczeń na małych strukturach danych. 
+
+Dodatkowo na uwagę zasługuje metoda \lstinline$isTaskCurrent$, dzięki której można sprawdzić, czy istnieje aktualnie zadanie o danym id, oczekujące na wykonanie, bądź aktualnie wykonywane. Informacja ta jest pomocna w tworzeniu rozbudowanej logiki kreatora.
+
+\section{Zadanie (Task)}
+Zadanie to komponent odpowiadający za bezpośrednie obliczenia danych. Służy zatem do zaktualizowania danej bądź jej inicjalizacji. Podstawową zasadą zadania jest to, że zawsze dokonuje on modyfikacji tylko jednej danej, natomiast może bazować na dowolnej liczbie danych, określanych jako "źródła". Zadanie posiada ściśle zdefiniowany interfejs, który został przedstawiony na listingu \ref{task:interface}.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=task:interface, caption={Interfejs klasy \lstinline$Task$},alsoletter={()[].=}]
+class Task : public QObject
+{
+	Q_OBJECT
+public:
+	explicit Task(QString target, std::map<QString, QString> sources);
+	explicit Task(QString id, QString target, std::map<QString, QString> sources);
+
+	virtual ~Task();
+	virtual bool start() final;
+	virtual void setSubscription(QString id, std::shared_ptr<Subscription> sub) final;
+	virtual void invalidateSubscriptions() final;
+
+	std::vector<Dependency>& getDependencies();
+	QString getId();
+
+signals:
+	void finished(QString id, bool success);
+
+protected:
+	virtual bool run() = 0;
+	virtual std::shared_ptr<Subscription> sub(QString id) final;
+	virtual bool subExists(QString id) final;
+	virtual bool isCancelled();
+
+private:
+	QString id;
+	std::vector<Dependency> dependencies;
+	std::map<QString, QString> sources;
+	std::map<QString, std::shared_ptr<Subscription>> subscriptions;
+
+};
+	\end{lstlisting}
+\end{minipage}
+
+
+\section{Task Scheduler} 

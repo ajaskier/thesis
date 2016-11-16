@@ -1,6 +1,6 @@
 
 \chapter{Obrazowanie wielospektralne}
-Obrazowanie wielospektralne jest techniką rejestracji obrazu za pomocą fal elektromagnetycznych o wybranej częstotliwości spośród widma spektroskopowego. Podczas gdy ludzkie oko widzi w głównie w trzech zakresach spektralnych (czerwonym, niebieskim oraz żółtym), obraz wielospektralny jest rejestrowany w znacznie większej ilości zakresów (przykładowo 31).
+Obrazowanie wielospektralne jest techniką rejestracji obrazu za pomocą fal elektromagnetycznych o wybranej częstotliwości spośród widma spektroskopowego. Podczas gdy ludzkie oko widzi w głównie w trzech zakresach spektralnych (czerwonym, niebieskim oraz żółtym), obraz wielospektralny jest rejestrowany w znacznie większej liczbie zakresów (przykładowo 31).
 
 \section{Format danych}
 \index{kostka wielospektralna} Dane wielospektralne są często nazywane kostką wielospektralną. 
@@ -20,7 +20,7 @@ Ze względu na swoją charakterystykę obrazy wielospektralne mogą bezproblemow
 \begin{itemize}
 \item unikać tworzenia zbędnych kopi danych,
 \item dokonywać obliczeń danych wyłącznie na żądanie,
-\item zwalniać z pamięci dane, które nie są już wizualizowane przez aplikację.
+\item zwalniać z pamięci dane, które nie są już wykorzystywane przez aplikację.
 \end{itemize}
 
 \section{Dane w systemie Gerbil}
@@ -28,13 +28,13 @@ Ze względu na swoją charakterystykę obrazy wielospektralne mogą bezproblemow
 Oryginalny obraz wielospektralny jest traktowany jako dana wejściowa w systemie. Na jego podstawie powstają dane pochodne. Są to głównie kolejne obrazy oraz histogramy wielospektralne. Do stworzenia prototypu mechanizmu zarządzania danymi oraz procesem przetworzenia użyte zostały poniższe dane:
 \begin{itemize}
 	\item \index{image} \textbf{image} -- oryginalny obraz wielospektralny. Dana ta jest obliczana podczas inicjalizacji aplikacji. Użytkownik może wejść w interakcję z systemem dopiero gdy image zostanie przetworzone.
-	\item \index{ROI} \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu,
+	\item \index{ROI} \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu. Jest przechowywany jako współrzędne lewego górnego wierzchołka zaznaczenia, jego wysokość oraz szerokość,
 	\item \index{image.IMG} \textbf{image.IMG} -- fragment obrazu oryginalnego zdeterminowany przez ROI,
-	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektora agregującego piksele na przestrzeni pasm spektralnych,
+	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektorów składających się z pikseli o jednakowych współrzędnych na przestrzeni pasm spektralnych,
 	\item \index{image.GRAD} \textbf{image.GRAD} -- gradient obrazu image.IMG,
 	\item \index{image.PCA} \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (analizy głównych składowych),
 	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA,
-	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji (przykładowo bands.NORM.6),
+	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji image.* (przykładowo bands.NORM.6),
 	\item \index{dist.IMG} \textbf{dist.IMG} - histogram wielospektralny obrazu image.IMG,
 	\item \index{dist.tmp.IMG} \textbf{dist.tmp.IMG} - dana pomocnicza używana do uzyskania danej dist.IMG. 
 \end{itemize}
@@ -63,9 +63,6 @@ Analizując rysunek ~\ref{fig:data-dependencies} można dojść do wniosku, że 
 	\item image.GRADPCA. \label{last-item}
 \end{enumerate}
 
-Scenariusz ten zakłada obliczenie każdej danej w hierarchii, co jest przypadkiem skrajnym. Często zdarza się, że pewna część danych jest aktualna. Wówczas przetwarzanie powinno rozpocząć się od nieaktualnej danej, znajdującej się najwyżej w hierarchii. 
+Scenariusz ten zakłada obliczenie każdej danej w hierarchii, co jest przypadkiem skrajnym. Często zdarza się, że pewna część danych jest aktualna. Wówczas przetwarzanie powinno rozpocząć się od pierwszej nieaktualnej danej znajdującej się najwyżej w hierarchii. 
 
-Dodatkowo, należy rozpatrzeć scenariusz równoległego wykonywania zadań. Zakładając, że aplikacja wyświetla jednocześnie dane image.NORM oraz image.GRAD, natomiast image.IMG zostało odświeżone, można dojść do wniosku, że system powinien w następnym kroku dokonać obliczeń obu danych (image.NORM i image.GRAD). Obliczenia te można wykonać szeregowo bądź równolegle, wobec tego można zdefiniować opcjonalne wymaganie dla systemu zarządzania zadaniami:
-\begin{itemize}
-	\item obsługa równoległego przetwarzania zadań.
-\end{itemize}
+Dodatkowo należy rozpatrzeć scenariusz równoległego wykonywania zadań. Zakładając, że aplikacja wyświetla jednocześnie dane image.NORM oraz image.GRAD, natomiast image.IMG zostało odświeżone, można dojść do wniosku, że system powinien w następnym kroku dokonać obliczeń obu danych (image.NORM i image.GRAD). Obliczenia te można wykonać szeregowo bądź równolegle, wobec tego można zdefiniować opcjonalne wymaganie dla systemu zarządzania zadaniami jako możliwość równoległego przetwarzania zadań.
