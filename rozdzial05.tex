@@ -149,7 +149,18 @@ Z analizy listingu \ref{creatorInterface} wynika, że klasa implementująca int
 Dodatkowo na uwagę zasługuje metoda \lstinline$isTaskCurrent$, dzięki której można sprawdzić, czy istnieje aktualnie zadanie o danym id, oczekujące na wykonanie, bądź aktualnie wykonywane. Informacja ta jest pomocna w tworzeniu rozbudowanej logiki kreatora.
 
 \section{Zadanie (Task)}
-Zadanie to komponent odpowiadający za bezpośrednie obliczenia danych. Służy zatem do zaktualizowania danej bądź jej inicjalizacji. Podstawową zasadą zadania jest to, że zawsze dokonuje on modyfikacji tylko jednej danej, natomiast może bazować na dowolnej liczbie danych, określanych jako "źródła". Zadanie posiada ściśle zdefiniowany interfejs, który został przedstawiony na listingu \ref{task:interface}.
+Zadanie to komponent odpowiadający za bezpośrednie obliczenia danych. Służy zatem do zaktualizowania danej bądź jej inicjalizacji. Podstawową zasadą zadania jest to, że zawsze dokonuje on modyfikacji tylko jednej danej, natomiast może bazować na dowolnej liczbie danych, określanych jako "źródła". 
+
+
+Każde zadanie posiada składową \lstinline$dependencies$, która jest listą jego zależności. Złożona jest ona z danej modyfikowanej oraz źródeł. Dla każdej danej w liście zależności określony jest również cel dostępu do niej (odczyt bądź zapis).
+
+Id modyfikowanej danej musi zostać przekazane zadaniu jako parametr jego konstruktora. Identyfikatory źródeł również są przekazywane w konstrukorze, lecz w postaci mapy. W mapie tej kluczem jest identyfikator źródła, natomiast wartością identyfikator, według którego ta dana będzie rozróżniana wewnątrz zadania. Jest to zabieg zastosowany w celu ujednolicenia konwencji nazewniczej wewnątrz zadań. Zazwyczaj zadania posiadają jedynie jedno źródło, do którego odnoszą się za pomocą identyfikatora \lstinline$source$. Id danej modyfikowanej jest automatycznie mapowane na nazwę \lstinline$dest$. 
+
+Zadanie, aby móc realizować dostęp do danych musi posiadać odpowiednie obiekty subskrypcji. Przeznaczona na nie jest składowa \lstinline$subscriptions$. Komponent nadrzędny, zarządzający zadaniem (Task Scheduler) jest zobowiązany do utworzenia dla niego właściwych obiektów subskrypcji (na podstawie jego zależności, zwracanych przez metodę \lstinline$getDependencies$) oraz przekazania ich poprzez metodę \lstinline$setSubscription$. Teoretycznie obiekt zadania może sam tworzyć subskrypcje, jednak nie jest to zalecane, a wręcz uznawane za błąd koncepcyjny. Przeznaczeniem zadania jest dokonywanie obliczeń na danych. Komponent tego typu nie powinien zajmować się zarządzaniem subskrypcjami.
+
+Każde zadanie posiada własny identyfikator. Może być on przekazany jako parametr konstruktora. Jeżeli nie jest, wówczas identyfikatorem zadania staje się identyfikator modyfikowanej danej.
+
+Zadanie posiada ściśle zdefiniowany interfejs, który został przedstawiony na listingu \ref{task:interface}.
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=task:interface, caption={Interfejs klasy \lstinline$Task$},alsoletter={()[].=}]
@@ -163,7 +174,6 @@ public:
 	virtual ~Task();
 	virtual bool start() final;
 	virtual void setSubscription(QString id, std::shared_ptr<Subscription> sub) final;
-	virtual void invalidateSubscriptions() final;
 
 	std::vector<Dependency>& getDependencies();
 	QString getId();
@@ -187,5 +197,29 @@ private:
 	\end{lstlisting}
 \end{minipage}
 
+Analizując listing \ref{task:interface} można ustalić, że jest to klasa abstrakcyjna. Klasy dziedziczące muszą zdefiniować metodę \lstinline$run$, aby nie być abstrakcyjne. Co więcej, wystarczające jest aby klasa zdefiniowała jedynie konstruktory oraz tą metodę, ponieważ właśnie ta ona przeznaczona jest do wykonywania obliczeń na danych. Wszelkie pozostałe metody mają charakter pomocniczy oraz są zapewnione przez klasę bazową. W ciele jej do obiektu subskrypcji można się odwołać za pomocą metody \lstinline$sub$. Można również sprawdzić czy dana subskrypcja została utworzona dzięki metodzie \lstinline$subExists$. Argumentem obu tych metod jest wewnętrzny identyfikator danej. Zadanie po zakończeniu metody \lstinline$run$ emituje sygnał \lstinline$finished$. Informacja taka może być przydatna dla kreatora zadania.
 
 \section{Task Scheduler} 
+Task Scheduler pełni zadanie komponentu zarządzającego zadaniami. Jak można wywnioskować z listingu \ref{scheduler:interface} klasa ta nie jest skomplikowana. Poprzez jedyną publiczną metodę \lstinline$pushTask$ trafiają do niego zadania stworzone przez kreatorów. Gdy zadanie zostanie przekazane do Task Scheduler'a, tworzy on subskrypcje dla niego. Funkcjonalność tą realizuje metoda \lstinline$createSubscriptions$. Zadanie, które posiada utworzone subskrypcje trafia do puli zadań (składowa \lstinline$taskPool$). Po dodaniu zadania do puli, pula zostaje przeiterowana w poszukiwaniu zadań gotowych do uruchomienia. Predykatem w tej sprawie jest Subscription Manager. Scheduler przekazuje mu listę zależności zadania a z powrotem otrzymuje wartość logiczną. Jeżeli jest ona równa \lstinline$true$, wówczas Task Scheduler uruchamia zadanie za pomocą metody \lstinline$startTask$. Jeżeli otrzymana wartość wynosi \lstinline$false$, Task Scheduler nie podejmuje żadnych akcji dla tego zadania i powraca do iteracji puli.
+
+W metodzie \lstinline$startTask$ tworzony jest wątek, do którego przekazywany jest obiekt zadania. Wątek jest uruchamiany, a w nim uruchamiane zostaje zadanie. Dodatkowo ustanawiane jest połączenie, za pomocą którego po zakończeniu zadania Task Scheduler ponownie iteruje pulę zadań w celu znalezienia kandydata do uruchomienia. 
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=scheduler:interface, caption={Deklaracja klasy \lstinline$TaskScheduler$},alsoletter={()[].=}]
+class TaskScheduler : public QObject
+{
+	Q_OBJECT
+public:
+	TaskScheduler(SubscriptionManager& sm);
+	void pushTask(std::shared_ptr<Task> task);
+
+private:
+	void checkTaskPool();
+	void startTask(std::shared_ptr<Task> task);
+	void createSubscriptions(std::shared_ptr<Task> task);
+
+	std::list<std::shared_ptr<Task>> taskPool;
+	SubscriptionManager& sm;
+};
+	\end{lstlisting}
+\end{minipage}
