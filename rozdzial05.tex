@@ -1,18 +1,16 @@
 \chapter{Projekt nowego systemu}
 
 \section{Zarys projektu}
-Nowy system opiera się na komponencie zwanym Subscription Manager (SM). Jest on właścicielem wszystkich współdzielonych danych. Pozostałe komponenty uzyskują dostęp do danych przez obiekty nazywane Subscription (Subskrypcja). Prawa dostępu są przyznawane oraz kontrolowane przez SM. Dane tworzą graf zależności, który zapewnia automatyczne obliczanie potrzebnych danych. Komponenty typu Creator (odpowiedniki modeli we wzorcu MVC) kontrolują proces powstawania danej poprzez tworzenie odpowiednio sparametryzowanych zadań. Utworzone zadania trafiają do komponentu Task Scheduler, który zarządza ich wykonaniem.
+Nowy system opiera się na komponencie zwanym SubscriptionManager (SM). Jest on właścicielem wszystkich współdzielonych danych. Pozostałe komponenty uzyskują dostęp do danych przez obiekty klasy Subscription. Prawa dostępu są przyznawane oraz kontrolowane przez SM. Dane tworzą graf zależności, który zapewnia automatyczne obliczanie potrzebnych danych. Komponenty typu Model (zbliżone do modeli we wzorcu MVC) kontrolują proces powstawania danej poprzez tworzenie odpowiednio sparametryzowanych zadań. Utworzone zadania trafiają do komponentu TaskScheduler, który zarządza ich wykonaniem.
 
-\subsection{Przepływ danych w systemie} % TUTAJ ZDECYDOWAĆ SIĘ NA JEDNO ALBO DRUGIE (TO ALBO TO POWYŻEJ)
+\subsection{Streszczenie przepływu danych w systemie} % TUTAJ ZDECYDOWAĆ SIĘ NA JEDNO ALBO DRUGIE (TO ALBO TO POWYŻEJ)
 
-
-Obliczenia danych są wywoływane poprzez interakcję użytkownika z interfejsem graficznym. Dane są wizualizowane w konkretnych panelach. W celu prezentacji danych użytkownik musi aktywować dany panel. Z punktu widzenia systemu panel jest komponentem żądającym dostępu do danej w celu odczytu. W kodzie panela tworzony jest obiekt subskrypcji, który stanowi definicję takiego żądania. Obiekty tego typu stanowią interfejs pomiędzy komponentami żądającymi dostępu do danych a Subscription Managerem. Jeżeli dane są aktualne, panel otrzymuje stosowną informację. W ciele obsługi tej informacji dokonywany jest faktyczny dostęp do danych, dzięki czemu dana zostaje zaprezentowana w GUI. Możliwy jest również scenariusz, w którym żądana dana nie jest aktualna, bądź nie została jeszcze zainicjalizowana. Wówczas system wysyła informację do odpowiedniego komponentu typu Creator, który zadeklarował umiejętność wytworzenia tej danej. Komponent w odpowiedzi na informację tworzy obiekt Zadania oraz przekazuje go do Task Scheduler'a. Każdy obiekt zadania posiada pewne zależności wobec danych. Minimum stanowi żądanie dostępu do danej, która ma zostać obliczona, w celu zapisu. Zazwyczaj zależności dopełniają żądania dostępu do odczytu danych, od których obliczana dana zależy (o ile zależy). Task Scheduler tworzy odpowiednie obiekty subskrypcji dla danego zadania, na podstawie jego sygnatury zależnosci. Akcja ta może prowadzić do powstania kolejnych obiektów zadań (jeżeli zadanie żąda dostępu do danej, która również nie jest aktualna). Task Scheduler uruchamia powstałe zadania w osobnych wątkach. W momencie gdy dana zarządana przez użytkownika zostanie finalnie obliczona, panel GUI otrzymuje stosowną informację i może dokonać jej prezentacji.
+Obliczenia danych są wywoływane poprzez interakcję użytkownika z interfejsem graficznym. Dane są wizualizowane w konkretnych panelach. W celu prezentacji danych użytkownik musi aktywować dany panel. Z punktu widzenia systemu panel jest komponentem żądającym dostępu do danej w celu odczytu. W kodzie widoku tworzony jest obiekt klasy Subscription, który stanowi definicję takiego żądania. Obiekty tego typu stanowią interfejs pomiędzy komponentami żądającymi dostępu do danych a obiektem klasy SubscriptionManager. Jeżeli dane są aktualne, panel otrzymuje stosowną informację. W ciele metody obsługującej tę informację dokonywany jest faktyczny dostęp do danych, dzięki czemu dana zostaje zaprezentowana w GUI. Możliwy jest również scenariusz, w którym żądana dana nie jest aktualna, bądź nie została jeszcze zainicjalizowana. Wówczas system wysyła informację do odpowiedniego komponentu typu Model, który zadeklarował umiejętność wytworzenia tej danej. Komponent w odpowiedzi na informację tworzy obiekt klasy Task oraz przekazuje go do obiektu klasy TaskScheduler. Każdy obiekt zadania posiada pewne zależności wobec danych. Minimum stanowi żądanie dostępu do danej, która ma zostać obliczona, w celu zapisu. Zazwyczaj zależności dopełniają żądania dostępu do odczytu danych, od których obliczana dana zależy (o ile zależy). Obiekt klasy TaskScheduler tworzy odpowiednie obiekty subskrypcji dla danego zadania, na podstawie jego sygnatury zależności. Akcja ta może prowadzić do powstania kolejnych obiektów zadań (jeżeli zadanie żąda dostępu do danej, która również nie jest aktualna). Obiekt klasy TaskScheduler uruchamia powstałe zadania w osobnych wątkach. W momencie gdy dana zażądana przez użytkownika zostanie finalnie obliczona, panel GUI otrzymuje stosowną informację i może dokonać jej prezentacji.
 
 
 
 \section{Model danych współdzielonych}
 Ważne jest aby do roli danej współdzielonej można było promować każdą daną w systemie. Dlatego model danej współdzielonej nie może opierać się na interfejsie, który inne klasy by implementowały, lecz na opakowaniu, w które można każdą daną włożyć. Klasa danych współdzielonych nazwana została \lstinline$DataEntry$.
-
 
 \subsection{Przechowywanie danych}
 Kwestię przechowania dowolnego typu można rozwiązać poprzez wykorzystanie \lstinline$boost::any$. Natomiast problem uchwytu do danych, którego można użyć w różnych fragmentach kodu rozwiązuje \lstinline$std::shared_ptr$. Z tego powodu \lstinline$std::shared_ptr<boost::any>$ stanowi trzon modelu danych współdzielonych. Zarówno dane jak i towarzyszące im metadane są przechowywane w ten sposób. 
@@ -24,7 +22,7 @@ using handle_pair = std::tuple<handle, handle>;
 	\end{lstlisting}
 \end{minipage}
 
-Aby kod był bardziej zwięzły stosowane są w nim aliasy (Listing \ref{dataentry:alias}). Pierwsza linia jest skróceniem zapisu typu uchwytu do danych, natomiast druga skraca zapis pary takich uchwytów (para uchwytów często jest wykorzysytywana do reprezentacji danych zagregowanych z metadanymi).
+Aby kod był bardziej zwięzły stosowane są w nim aliasy (Listing \ref{dataentry:alias}). Pierwsza linia jest skróceniem zapisu typu uchwytu do danych, natomiast druga skraca zapis pary takich uchwytów (para uchwytów często jest wykorzystywana do reprezentacji danych zagregowanych z metadanymi).
 
 \subsection{Synchronizacja dostępu do danych}
 Rozwiązanie to jednak nie likwiduje problemu synchronizacji dostępu do danych. Wobec tego model został wzbogacony o muteks oraz dwie zmienne warunkowe (Listing \ref{dataentry:sync}). Pierwsza zmienna warunkowa - \lstinline$not_reading$ służy do obsłużenia wątków oczekujących na dostęp do danych w celu zapisu, natomiast druga \lstinline$not_writing$ do obsługi wątków oczekujących na dostęp do danych w celu odczytu.
@@ -59,7 +57,7 @@ void DataEntry::endRead()
 
 Na listingu \ref{dataentry:sync:read} widoczna jest implementacja metod realizujących dostęp do danych w celu odczytu. 
 
-W metodzie \lstinline$read$ tworzona jest blokada, która zajmuje mutex. Następnie wątek wywołujący metodę zostaje uśpione do momentu powiadomienia przez zmienną warunkową. Aby uniknąć fałszywych wybudzeń przekazywana jest dodatkowo lambda, która służy za predykat. Jeśli wartość zwrócona przez lambdę jest prawdziwa (zawarte jest w niej sprawdzenie czy wewnętrzny stan danej jest prawidłowy), wówczas wybudzenie jest słuszne. Po wybudzeniu zostaje zwrócona para uchwytów -- do danej oraz metadanej.
+W metodzie \lstinline$read$ tworzona jest blokada, która zajmuje mutex. Następnie wątek wywołujący metodę zostaje uśpiony do momentu powiadomienia przez zmienną warunkową. Aby uniknąć fałszywych wybudzeń przekazywana jest dodatkowo wyrażenie lambda, która służy za predykat. Jeśli wartość zwrócona przez lambdę jest prawdziwa (zawarte jest w niej sprawdzenie czy wewnętrzny stan danej jest prawidłowy), wówczas wybudzenie jest słuszne. Po wybudzeniu zostaje zwrócona para uchwytów -- do danej oraz metadanej.
 
 Metoda \lstinline$endRead$ służy do sygnalizacji zakończenia odczytu. W jej ciele wykonywane jest sprawdzenie czy wewnętrzny stan danej jest prawidłowy. Jeśli jest, wówczas zmienna warunkowa \lstinline$not_reading$ dokonuje przebudzenia jednego z wątków oczekujących na dostęp do danych w celu zapisu.
 
@@ -84,34 +82,19 @@ void DataEntry::endWrite()
 
 Analizując implementację metod pozwalających na bezpieczny zapis danych przedstawionych na listingu \ref{dataentry:sync:write} można dostrzec dużą analogie do metod z listingu \ref{dataentry:sync:read}. Jedyną zasadniczą różnicą jest fakt, że po zakończeniu zapisu zmienna warunkowa \lstinline$not_writing$ budzi wszystkie wątki oczekujące na dostęp w celu odczytu.
 
-\section{Subscription oraz Subscription Manager}
+\section{Model}
 
-Subscription Manager pełni rolę jednostki głównej w systemie. Jest on abstrakcją o poziom wyższą niż dane współdzielone. Komponent ten agreguje wszystkie takie dane oraz nimi zarządza. Do jego odpowiedzialności należą:
-\begin{itemize}
-	\item przyznawanie dostępu do danych,
-	\item propagacja informacji o dostępności nowej wersji danych,
-	\item propagacja informacji o żądaniu obliczeń nowych danych,
-	\item zarządzanie cyklem życia danych,
-	\item kontrola wewnętrznego stanu danych.
-\end{itemize}
-
-%Aby wyjaśnić funkcjonalności Subscription Managera, należy najpierw omówić przepływ danych w systemie. 
-
-
-
-\section{Kreator (Creator)}
-
-Kreator jest klasą semantycznie zbliżoną do Modelu z wzorca MVC. Zadaniem kreatora jest kontrola procesu wytworzenia danej. Interfejs zdefiniowany dla kreatora został przedstawiony na listingu \ref{creatorInterface}.
+Model jest zmodyfikowaną wersją Modelu z wzorca MVC. Jego zadaniem jest kontrola procesu wytworzenia danej. Interfejs zdefiniowany dla modelu został przedstawiony na listingu \ref{modelInterface}.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=creatorInterface, caption={Interfejs klasy \lstinline$Creator$},alsoletter={()[].=}]
-class Creator : public QObject
+	\begin{lstlisting}[label=modelInterface, caption={Interfejs klasy \lstinline$Model$},alsoletter={()[].=}]
+class Model : public QObject
 {
 	Q_OBJECT
 public:
-	explicit Creator(SubscriptionManager& sm, TaskScheduler* scheduler,
+	explicit Model(SubscriptionManager& sm, TaskScheduler* scheduler,
 						QObject *parent = 0);
-	virtual ~Creator();
+	virtual ~Model();
 
 public slots:
 	virtual void delegateTask(QString requestedId,
@@ -134,27 +117,54 @@ private:
 \end{minipage}
 
 
-Metoda \lstinline$registerData$ służy do rejestrowania danych. Za jej pomocą kreator zgłasza współdzielone dane, za które bierze odpowiedzialność. Każda dana współdzielona, aby istnieć w systemie, musi zostać zarejestrowana przez któryś z kreatorów. Do zarejestrowania danej wymagane jest jej ID oraz lista ID danych, od której owa dana jest zależna. Na listingu \ref{creator:registerData} został przedstawiony przykład rejestrowania współdzielonych. W pierwszych dwóch liniach zarejestrowane zostały dane, które są niezależne (lista ich zależności jest pusta). W trzeciej lini jest wyrażona rejestracja danej \lstinline$image.IMG$ oraz jej zależności od danych \lstinline$image$ oraz \lstinline$ROI$. Dzięki takiemu formatowi rejestrowania danych system jest w stanie stworzyć graf zależności danych, wykorzystywany do prawidłowej propagacji informacji.
+Metoda \lstinline$registerData$ służy do rejestrowania danych. Za jej pomocą model zgłasza współdzielone dane, za które bierze odpowiedzialność. Każda dana współdzielona, aby istnieć w systemie, musi zostać zarejestrowana przez któryś z modeli. Do zarejestrowania danej wymagane jest jej ID oraz lista ID danych, od której owa dana jest zależna. Na listingu \ref{model:registerData} został przedstawiony przykład rejestrowania współdzielonych. W pierwszych dwóch liniach zarejestrowane zostały dane, które są niezależne (lista ich zależności jest pusta). W trzeciej linii jest wyrażona rejestracja danej \lstinline$image.IMG$ oraz jej zależności od danych \lstinline$image$ oraz \lstinline$ROI$. Dzięki takiemu formatowi rejestrowania danych system jest w stanie stworzyć graf zależności danych, wykorzystywany do prawidłowej propagacji informacji.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=creator:registerData, caption={Przykłady rejestrowania danych},alsoletter={()[].=}]
+	\begin{lstlisting}[label=model:registerData, caption={Przykłady rejestrowania danych},alsoletter={()[].=}]
 registerData("image", {});
 registerData("ROI", {});
 registerData("image.IMG", {"image", "ROI"});
 	\end{lstlisting}
 \end{minipage}
 
-Z analizy listingu \ref{creatorInterface} wynika, że klasa implementująca interfejs Kreatora musi zdefiniować metodę \lstinline$delegateTask$ aby nie być klasą abstrakcyjną. Metoda ta jest kluczowa dla tego interfejsu, oraz bardzo ważna dla całego systemu. Ciało tej metody powinna stanowić obsługa żądania W definicji tej metody powinna znaleźć się obsługa żądania dokonania obliczeń danych. Żądanie takie może płynąć bezpośrednio od użytkownika, bądź w sposób pośredni, na skutek wewnętrznego mechanizmu systemu. Standardowym zachowaniem kreatora jest utworzenie odpowiedniego obiektu Zadania i przekazanie go do Task Scheduler'a. Teoretycznie możliwe jest, aby kreator sam dokonał obliczenia danej, zamiast tworzyć obiekt Zadania. Ta metoda jednak nie jest zalecana. Dopuszcza się jej stosowanie jedynie w przypadku nieskomplikowanych obliczeń na małych strukturach danych. 
+Z analizy listingu \ref{modelInterface} wynika, że klasa implementująca interfejs Model musi zdefiniować metodę \lstinline$delegateTask$ aby nie być klasą abstrakcyjną. Metoda ta jest kluczowa dla tego interfejsu, oraz bardzo ważna dla całego systemu. W definicji tej metody powinna znaleźć się obsługa żądania dokonania obliczeń danych. Żądanie takie może płynąć bezpośrednio od użytkownika, bądź w sposób pośredni, na skutek wewnętrznego mechanizmu systemu. Standardowym zachowaniem modelu jest utworzenie odpowiedniego obiektu klasy Task i przekazanie go do obiektu klasy TaskScheduler. Teoretycznie możliwe jest, aby model sam dokonał obliczenia danej, zamiast tworzyć obiekt klasy Task. Ta metoda jednak nie jest zalecana. Dopuszcza się jej stosowanie jedynie w przypadku nieskomplikowanych obliczeń na małych strukturach danych. 
 
-Dodatkowo na uwagę zasługuje metoda \lstinline$isTaskCurrent$, dzięki której można sprawdzić, czy istnieje aktualnie zadanie o danym id, oczekujące na wykonanie, bądź aktualnie wykonywane. Informacja ta jest pomocna w tworzeniu rozbudowanej logiki kreatora.
+Dodatkowo na uwagę zasługuje metoda \lstinline$isTaskCurrent$, dzięki której można sprawdzić, czy istnieje aktualnie zadanie o danym id, oczekujące na wykonanie, bądź aktualnie wykonywane. Informacja ta jest pomocna w tworzeniu rozbudowanej logiki modelu.
+
+\section{Subskrypcja (Subscription) oraz Zamek (Lock)}
+Komponent Subscription pełni rolę pośrednika między jednostką zarządzającą danymi a jednostką, która o dostęp do danych prosi. Poprzez utworzenie subskrypcji komponent deklaruje chęć uzyskania dostępu do danych. Do stworzenia takiego obiektu potrzebne jest ustalenie jego przeznaczenia (odczyt bądź zapis) oraz nazwa pożądanej danej. 
+Aby dokonać faktycznego dostępu do danej tworzy się obiekt klasy Lock (zamek). Podczas inicjalizacji przekazuje mu się obiekt subskrypcji - można stwierdzić, że jest ona wówczas zajęta. Lock jest szablonem klasy. Podczas tworzenia tego obiektu należy skonkretyzować go dwoma typami: pierwszy jest typem danej, natomiast drugi jest typem metadanej. Jeżeli jednak nie ma się zamiaru korzystać z metadanych, nie ma potrzeby podawania jej typu. Za pomocą obiektu typu Lock można otrzymać bezpośredni uchwyt do danej oraz do metadanej. Podczas pozyskiwania uchwytów wewnętrzna implementacja klasy Lock dokonuje rzutowania z typu \lstinline$boost::any$ na podany przy tworzeniu obiektu zamku typ, stąd potrzeba ich specyfikowania. Dostęp do danych może być blokujący - wykonanie w wątku dokonującym dostępu do danych może zostać wstrzymane. Wynika to z mechanizmów odczytu/zapisu modelu danych współdzielonych oraz logiki jednostki zarządzającej danymi.
+
+Klasa subskrypcji zapewnia jeszcze jedną bardzo ważną funkcjonalność. Jest nią sygnalizowanie aktualizacji danych. Jest to bardzo przydatne dla komponentów interfejsu graficznego, których zadaniem jest prezentowanie żądanych danych oraz dbanie o aktualność tych danych. Aby ułatwić to zadanie, komponent GUI może podczas tworzenia obiektu subskrypcji przekazać metodę, której realizowana będzie obsługa sygnału aktualizacji danej. Dzięki temu komponenty takie jak widok nie muszą posiadać logiki sprawdzania czy dane zostały zaktualizowane. Taki sposób dostępu do danych został nazwany odroczonym (ang. deferred). Konstrukcja obiektu subskrypcji w ten sposób została przedstawiona na listingu \ref{subscription:deferred}. W opozycji do dostępu odroczonego stoi dostęp bezpośredni (ang. direct), który jest bardziej uniwersalny. Jest to nic innego jak utworzenie obiektu subskrypcji oraz obiektu zamka. Deklarując dostęp odroczony przy tworzeniu obiektu subskrypcji można używać również dostępu bezpośredniego (co zazwyczaj ma miejsce w ciele metody, która jest obsługą sygnału aktualizacji danej). Nie można jednak używać dostępu odroczonego jeśli subskrypcja została utworzona z zadeklarowanym dostępem bezpośrednim. Konstrukcja dostępu bezpośredniego została przedstawiona na listingu \ref{subscription:direct}.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=subscription:deferred, caption={Przykład tworzenia obiektu subskrypcji z odroczonym dostępem do danych },alsoletter={()[].=}]
+	
+Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
+	SubscriptionType::READ), AccessType::DEFERRED, this,
+	std::bind(&ImgWindow::displayImg, this));
+	
+	
+	\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=subscription:direct, caption={Przykład tworzenia obiektu subskrypcji z bezpośrednim dostępem do danych },alsoletter={()[].=}]
+	
+Subscription* sub = SubscriptionFactory::create(Dependency("dist.tmp.IMG",
+	SubscriptionType::READ), AccessType::DIRECT);
+	
+	\end{lstlisting}
+\end{minipage}
+
+Aby umożliwiać dostęp do danych, subskrypcja potrzebuje uchwytu do jednostki zarządzającej danymi (Subscription Manager'a). Ważne jest aby dostęp do danych współdzielonych był prosty dla każdego komponentu w systemie, również te, które nie mają dostępu do jednostki zarządzania danymi. Zatem aby tworzenie obiektów subskrypcji było możliwe z dowolnego miejsca w kodzie realizowane jest ono poprzez fabrykę \lstinline$SubscriptionFactory$. Fabryka posiada uchwyt do Subscription Manager'a, który przekazuje obiektowi subskrypcji. 
 
 \section{Zadanie (Task)}
 Zadanie to komponent odpowiadający za bezpośrednie obliczenia danych. Służy zatem do zaktualizowania danej bądź jej inicjalizacji. Podstawową zasadą zadania jest to, że zawsze dokonuje on modyfikacji tylko jednej danej, natomiast może bazować na dowolnej liczbie danych, określanych jako "źródła". 
 
-
 Każde zadanie posiada składową \lstinline$dependencies$, która jest listą jego zależności. Złożona jest ona z danej modyfikowanej oraz źródeł. Dla każdej danej w liście zależności określony jest również cel dostępu do niej (odczyt bądź zapis).
 
-Id modyfikowanej danej musi zostać przekazane zadaniu jako parametr jego konstruktora. Identyfikatory źródeł również są przekazywane w konstrukorze, lecz w postaci mapy. W mapie tej kluczem jest identyfikator źródła, natomiast wartością identyfikator, według którego ta dana będzie rozróżniana wewnątrz zadania. Jest to zabieg zastosowany w celu ujednolicenia konwencji nazewniczej wewnątrz zadań. Zazwyczaj zadania posiadają jedynie jedno źródło, do którego odnoszą się za pomocą identyfikatora \lstinline$source$. Id danej modyfikowanej jest automatycznie mapowane na nazwę \lstinline$dest$. 
+Identyfikator (ID) modyfikowanej danej musi zostać przekazany zadaniu jako parametr jego konstruktora. Identyfikatory źródeł również są przekazywane w konstruktorze, lecz w postaci mapy. W mapie tej kluczem jest identyfikator źródła, natomiast wartością identyfikator, według którego ta dana będzie rozróżniana wewnątrz zadania. Jest to zabieg zastosowany w celu ujednolicenia konwencji nazewniczej wewnątrz zadań. Zazwyczaj zadania posiadają jedynie jedno źródło, do którego odnoszą się za pomocą identyfikatora \lstinline$source$. ID danej modyfikowanej jest automatycznie mapowany na nazwę \lstinline$dest$. 
 
 Zadanie, aby móc realizować dostęp do danych musi posiadać odpowiednie obiekty subskrypcji. Przeznaczona na nie jest składowa \lstinline$subscriptions$. Komponent nadrzędny, zarządzający zadaniem (Task Scheduler) jest zobowiązany do utworzenia dla niego właściwych obiektów subskrypcji (na podstawie jego zależności, zwracanych przez metodę \lstinline$getDependencies$) oraz przekazania ich poprzez metodę \lstinline$setSubscription$. Teoretycznie obiekt zadania może sam tworzyć subskrypcje, jednak nie jest to zalecane, a wręcz uznawane za błąd koncepcyjny. Przeznaczeniem zadania jest dokonywanie obliczeń na danych. Komponent tego typu nie powinien zajmować się zarządzaniem subskrypcjami.
 
@@ -197,10 +207,10 @@ private:
 	\end{lstlisting}
 \end{minipage}
 
-Analizując listing \ref{task:interface} można ustalić, że jest to klasa abstrakcyjna. Klasy dziedziczące muszą zdefiniować metodę \lstinline$run$, aby nie być abstrakcyjne. Co więcej, wystarczające jest aby klasa zdefiniowała jedynie konstruktory oraz tą metodę, ponieważ właśnie ta ona przeznaczona jest do wykonywania obliczeń na danych. Wszelkie pozostałe metody mają charakter pomocniczy oraz są zapewnione przez klasę bazową. W ciele jej do obiektu subskrypcji można się odwołać za pomocą metody \lstinline$sub$. Można również sprawdzić czy dana subskrypcja została utworzona dzięki metodzie \lstinline$subExists$. Argumentem obu tych metod jest wewnętrzny identyfikator danej. Zadanie po zakończeniu metody \lstinline$run$ emituje sygnał \lstinline$finished$. Informacja taka może być przydatna dla kreatora zadania.
+Analizując listing \ref{task:interface} można ustalić, że jest to klasa abstrakcyjna. Klasy dziedziczące muszą zdefiniować metodę \lstinline$run$, aby nie być abstrakcyjne. Co więcej, wystarczające jest aby klasa zdefiniowała jedynie konstruktory oraz tę metodę, ponieważ właśnie ta ona przeznaczona jest do wykonywania obliczeń na danych. Wszelkie pozostałe metody mają charakter pomocniczy oraz są zapewnione przez klasę bazową. W ciele jej do obiektu subskrypcji można się odwołać za pomocą metody \lstinline$sub$. Można również sprawdzić czy dana subskrypcja została utworzona dzięki metodzie \lstinline$subExists$. Argumentem obu tych metod jest wewnętrzny identyfikator danej. Zadanie po zakończeniu metody \lstinline$run$ emituje sygnał \lstinline$finished$. Informacja taka może być przydatna dla modelu odpowiedzialnego za zadanie.
 
 \section{Task Scheduler} 
-Task Scheduler pełni zadanie komponentu zarządzającego zadaniami. Jak można wywnioskować z listingu \ref{scheduler:interface} klasa ta nie jest skomplikowana. Poprzez jedyną publiczną metodę \lstinline$pushTask$ trafiają do niego zadania stworzone przez kreatorów. Gdy zadanie zostanie przekazane do Task Scheduler'a, tworzy on subskrypcje dla niego. Funkcjonalność tą realizuje metoda \lstinline$createSubscriptions$. Zadanie, które posiada utworzone subskrypcje trafia do puli zadań (składowa \lstinline$taskPool$). Po dodaniu zadania do puli, pula zostaje przeiterowana w poszukiwaniu zadań gotowych do uruchomienia. Predykatem w tej sprawie jest Subscription Manager. Scheduler przekazuje mu listę zależności zadania a z powrotem otrzymuje wartość logiczną. Jeżeli jest ona równa \lstinline$true$, wówczas Task Scheduler uruchamia zadanie za pomocą metody \lstinline$startTask$. Jeżeli otrzymana wartość wynosi \lstinline$false$, Task Scheduler nie podejmuje żadnych akcji dla tego zadania i powraca do iteracji puli.
+Task Scheduler pełni zadanie komponentu zarządzającego zadaniami. Jak można wywnioskować z listingu \ref{scheduler:interface} klasa ta nie jest skomplikowana. Poprzez jedyną publiczną metodę \lstinline$pushTask$ trafiają do niego zadania stworzone przez modele. Gdy zadanie zostanie przekazane do Task Scheduler'a, tworzy on subskrypcje dla niego. Funkcjonalność tą realizuje metoda \lstinline$createSubscriptions$. Zadanie, które posiada utworzone subskrypcje trafia do puli zadań (składowa \lstinline$taskPool$). Po dodaniu zadania do puli, pula zostaje przeiterowana w poszukiwaniu zadań gotowych do uruchomienia. Predykatem w kwestii, czy zadanie może zostać uruchomione, czy też nie jest metoda \lstinline$processDependencies$ klasy SubscriptionManager. Scheduler przekazuje mu listę zależności zadania a z powrotem otrzymuje wartość logiczną. Jeżeli jest ona równa \lstinline$true$, wówczas Task Scheduler uruchamia zadanie za pomocą metody \lstinline$startTask$. Jeżeli otrzymana wartość wynosi \lstinline$false$, Task Scheduler nie podejmuje żadnych akcji dla tego zadania i powraca do iteracji puli.
 
 W metodzie \lstinline$startTask$ tworzony jest wątek, do którego przekazywany jest obiekt zadania. Wątek jest uruchamiany, a w nim uruchamiane zostaje zadanie. Dodatkowo ustanawiane jest połączenie, za pomocą którego po zakończeniu zadania Task Scheduler ponownie iteruje pulę zadań w celu znalezienia kandydata do uruchomienia. 
 
@@ -223,3 +233,43 @@ private:
 };
 	\end{lstlisting}
 \end{minipage}
+
+\section{Menedżer Subskrypcji (Subscription Manager)}
+
+Subscription Manager pełni rolę jednostki głównej w systemie. Komponent ten agreguje wszystkie takie dane oraz nimi zarządza poprzez subskrypcje. Do jego odpowiedzialności należą:
+\begin{itemize}
+	\item przyznawanie dostępu do danych,
+	\item propagacja informacji o dostępności nowej wersji danych,
+	\item propagacja informacji o żądaniu obliczeń nowych danych,
+	\item zarządzanie cyklem życia danych,
+	\item kontrola wewnętrznego stanu danych.
+\end{itemize}
+
+Funkcjonalności oferowane przez omówione wcześniej komponenty -- Subskrypcje oraz Zamki nie są przez nie realizowane. Subskrypcja czy Zamek to jedynie interfejs udostępniający funkcjonalności Menedżera Subskrypcji. 
+
+Omówione wcześniej Subskrypcje oraz Zamki pełnią jedynie rolę interfejsów udostępniających funkcjonalności zapewniane przez Subscription Manager'a. Dla każdej danej kontrolowanej przez ten komponent przechowywane są następujące informacje:
+\begin{itemize}
+	\item liczba subskrypcji utworzonych w celu odczytu danej,
+	\item flaga wskazująca na istnienie subskrypcji utworzonej w celu zapisu danej,
+	\item liczba aktywnych dostępów do danych w celu odczytu - pierwsza próba dostępu do danej bądź metadanej przy użyciu obiektu zamka jest rejestrowana przez SM jako aktywny dostęp do danych. Dostęp jest uznawany za zakończony gdy obiekt zamka wyjdzie poza zasięg, bądź przez jawne zakończenie dostępu poprzez metodę \lstinline$release$ klasy Lock,
+	\item flaga wskazująca na aktywny dostęp do danych w celu zapisu - analogicznie jak w przypadku powyższym,
+	\item flaga determinująca czy dana została zainicjalizowana,
+	\item flaga determinująca czy dana jest aktualna,
+	\item uchwyt do modelu, który zarejestrował daną,
+	\item kolekcję identyfikatorów danych zależnych,
+	\item kolekcję obiektów subskrypcji tej danej.
+\end{itemize}
+
+Gdy jakiś komponent utworzy obiekt subskrypcji do danej, obiekt ten staje się pośrednikiem pomiędzy komponentem a Menedżerem Subskrypcji. 
+
+Jeśli subskrypcja została stworzona w celu odczytu danej, SM inkrementuje liczbę takich subskrypcji. Jeżeli ze stanu danej wynika, że nie jest ona aktualna bądź zainicjalizowana SM wysyła żądanie o utworzenie zadania obliczającego do modelu odpowiedzialnego za tą daną. Jeżeli dana jest aktualna oraz nie odbywa się aktualnie zapis tej danej a subskrypcja została utworzona ze zdefiniowanym odroczonym sposobem dostępu do danej, SM wysyła sygnał do komponentu (poprzez obiekt subskrypcji), mówiący że dana jest aktualna i można przeprowadzić do niej dostęp.
+
+Jeśli subskrypcja została stworzona w celu zapisu (modyfikacji) danej, SM przypisuje wartość logiczną prawdy do flagi wskazującej na obecność takiego typu subskrypcji oraz wartość logiczną fałszu do flagi wskazującej na aktualność danej. Następnie sygnał o modyfikacji danej jest propagowany w dół grafu zależności danych. Jeżeli któraś z danych zależnych od danej, która będzie zmodyfikowana, posiada jakieś (bezpośrednie bądź pośrednie) subskrypcje, wówczas do modelu odpowiedzialnego za nią wysyłane jest żądanie o utworzenie zadania obliczającego. Zazwyczaj model reaguje pozytywnie - tworzy zadanie, przekazuje je do Task Scheduler'a, który tworzy subskrypcje dla zadania (w tym zawsze jedną w celu zapisu), przez co wykonanie znowu znajduje się w punkcie rejestrowania subskrypcji 
+przez Subscription Manager'a, tym razem jednak dla danej pochodnej. Proces ten w sposób rekurencyjny powtarza się dla wszystkich danych zależnych od wyjściowej danej. W następnym kroku dla każdej danej zależnej od danej wyjściowej, fladze wskazującej na aktualność danej zostaje przypisana wartość logiczna fałszu.
+
+Subscription Manager musi podjąć również jakąś akcję w przypadku, gdy obiekt subskrypcji zostanie usunięty. Kolekcja obiektów subskrypcji zostaje zaktualizowana. Jeżeli kolekcja ta jest pusta, dana oraz metadana zostają zwolnione, a flagom inicjalizacji oraz aktualności zostaje przypisany fałsz.
+Jeżeli kolekcja nie jest pusta, wówczas dla subskrypcji w celu odczytu dodatkowo zostaje dekrementowany licznik subskrypcji, zaś w przypadku subskrypcji w celu zapisu/modyfikacji, fladze wskazującej na istnienie takiej subskrypcji zostaje przypisany fałsz, a do wszystkich subskrybentów danej zostaje wysłany sygnał o aktualizacji danej.
+
+Gdy ma miejsce faktyczny dostęp do danych, poprzez obiekt zamka, w celu odczytu Subscription Manager wywołuje metodę \lstinline$read$ klasy \lstinline$DataEntry$, inkrementuje licznik aktywnych dostępów do danych w celu odczytu oraz zwraca dane pozyskane za pomocą metody. Podczas dostępu w celu zapisu sytuacja jest analogiczna -- jedyną różnicą jest fakt przypisania wartości prawdy fladze aktywnego dostępu zamiast inkrementacji licznika. 
+
+Gdy faktyczny dostęp w celu odczytu zostaje zakończony wywołana zostaje metoda \lstinline$endRead$ klasy \lstinline$DataEntry$, a licznik aktywnych dostępów zostaje dekrementowany. W sytuacji zakończenia zapisu wywoływana zostaje metoda \lstinline$endWrite$, flaga wskazująca na aktywny zapis zostaje ustawiona na fałsz, a flagom wskazującym zainicjalizowanie oraz aktualność danej przypisana jest prawda.

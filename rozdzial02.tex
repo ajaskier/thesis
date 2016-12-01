@@ -12,11 +12,11 @@ Obrazowanie wielospektralne jest techniką rejestracji obrazu za pomocą fal ele
 	\label{fig:multispectral-cube}	
 \end{figure}
 
-Na rysunku ~\ref{fig:multispectral-cube} zilustrowano układ danych w kostce wielospektralnej. Kostka taka składa się z $n_x$ pikseli $x$. Każdy piksel jest wektorem współczynników spektralnych o długości  $n_D$, gdzie $n_D$ jest liczbą obrazów spektralnych, na które składa się dana wielospektralna. Każdy współczynnik $x_d$ jest wartością reakcji sensorycznej dla odpowiadającego pasma spektralnego $b_d$ skoncentrowanego wokół fali $\lambda_d$. W skrócie obraz wielospektralny jest zbiorem obrazów rejestrowanych przy użyciu fal elektromagnetycznych o zadanych długościach. 
+Na rysunku ~\ref{fig:multispectral-cube} zilustrowano układ danych w kostce wielospektralnej. Kostka taka składa się z $n_x$ ($h$ rzędów na $w$ kolumn) pikseli $x$. Każdy piksel jest wektorem współczynników spektralnych o długości  $n_D$, gdzie $n_D$ jest liczbą obrazów spektralnych, na które składa się dana wielospektralna. Każdy współczynnik $x_d$ jest wartością reakcji sensorycznej dla odpowiadającego pasma spektralnego $b_d$ skoncentrowanego wokół fali $\lambda_d$. W skrócie obraz wielospektralny jest zbiorem obrazów rejestrowanych przy użyciu fal elektromagnetycznych o zadanych długościach. 
 
 
 \subsection{Konsekwencje formatu danych}
-Ze względu na swoją charakterystykę obrazy wielospektralne mogą bezproblemowo osiągać rozmiary setek megabajtów, lub nawet gigabajtów. Większość danych pochodnych, które są efektem analizy tego obrazu posiadają podobne rozmiary. Informacja ta jest kluczowa podczas projektowania mechanizmu zarządzania danymi w takim systemie. Biorąc pod uwagę rozmiar danych mechanizm taki powinien:
+Ze względu na swoją charakterystykę serie obrazów wielospektralnych mogą bezproblemowo osiągać rozmiary setek megabajtów, lub nawet gigabajtów. Zazwyczaj jednak obrazy są rejestrowane aparatem o matrycy ok. 2 Mpix. Większość danych pochodnych, które są efektem analizy tego obrazu posiadają podobne rozmiary. Informacja ta jest kluczowa podczas projektowania mechanizmu zarządzania danymi w takim systemie. Biorąc pod uwagę rozmiar danych mechanizm taki powinien:
 \begin{itemize}
 \item unikać tworzenia zbędnych kopi danych,
 \item dokonywać obliczeń danych wyłącznie na żądanie,
@@ -33,7 +33,7 @@ Oryginalny obraz wielospektralny jest traktowany jako dana wejściowa w systemie
 	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektorów składających się z pikseli o jednakowych współrzędnych na przestrzeni pasm spektralnych,
 	\item \index{image.GRAD} \textbf{image.GRAD} -- gradient obrazu image.IMG,
 	\item \index{image.PCA} \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (analizy głównych składowych),
-	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA,
+	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA (ang. Principal Component Analysis - Analiza głównych składowych)\cite{PCA},
 	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji image.* (przykładowo bands.NORM.6),
 	\item \index{dist.IMG} \textbf{dist.IMG} - histogram wielospektralny obrazu image.IMG,
 	\item \index{dist.tmp.IMG} \textbf{dist.tmp.IMG} - dana pomocnicza używana do uzyskania danej dist.IMG. 

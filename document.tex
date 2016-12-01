@@ -37,7 +37,8 @@
 	numbers=left,
 	xleftmargin=2em,
 	framexleftmargin=2em,
-	linewidth=\textwidth
+	linewidth=\textwidth,
+	captionpos=b
 }
 \lstset{style=customcpp}
 
@@ -430,9 +431,9 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \begin{flushleft}
 \end{flushleft}
 
-\newpage
-\mbox{}\pdfbookmark[0]{Spis tabel}{spisTabel.1}
-\listoftables*
+%\newpage
+%\mbox{}\pdfbookmark[0]{Spis tabel}{spisTabel.1}
+%\listoftables*
 
 %\include{skroty} %skróty można sobie pominąć
 
@@ -461,4 +462,52 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \addcontentsline{toc}{chapter}{Indeks rzeczowy}
 \printindex
 
+\begin{thebibliography}{9}
+	
+	\bibitem{PCA}
+	\emph{Analiza głównych składowych}
+  \url{https://pl.wikipedia.org/wiki/Analiza\_g\%C5\%82\%C3\%B3wnych_sk\%C5\%82adowych}
+  (dostęp 23.11.2016).
+	
+	\bibitem{Stroustrup}
+	Bjarne Stroustrup,
+	\emph{Język C++. Kompendium wiedzy}.
+	Wydawnictwo Helion, Gliwice,
+	Wydanie IV,
+	2014.
+	
+	\bibitem{cplusplus}
+	\emph{Krótki opis języka C++}
+	\url{http://www.cplusplus.com/info/description}
+	(dostęp 31.10.2016).
+
+	\bibitem{C++11}
+	\emph{ISO/IEC 14882:2011}
+	\url{http://www.iso.org/iso/catalogue_detail.htm?csnumber=50372}
+	(dostęp 23.11.2016).
+	
+	\bibitem{Qtdoc}
+	\emph{Dokumentacja Qt 5.7}
+	\url{http://doc.qt.io/qt-5/index.html}
+	(dostęp 30.10.2016).
+	
+	\bibitem{boost}
+	\emph{Oficjalna strona Boost}
+	\url{http://www.boost.org/}
+	(dostęp 30.10.2016).
+	
+	\bibitem{tbb}
+	\emph{Oficjalna strona Threading Building Blocks}
+	\url{https://www.threadingbuildingblocks.org/}
+	(dostęp 31.10.2016).
+	
+	\bibitem{opencv}
+	\emph{Oficjalna strona OpenCV}
+	\url{http://opencv.org/about.html}
+	(dostęp 31.10.2016).
+	
+\end{thebibliography}
+
+
 \end{document}
+
