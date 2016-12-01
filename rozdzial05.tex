@@ -138,8 +138,7 @@ Aby dokonać faktycznego dostępu do danej tworzy się obiekt klasy Lock (zamek)
 Klasa subskrypcji zapewnia jeszcze jedną bardzo ważną funkcjonalność. Jest nią sygnalizowanie aktualizacji danych. Jest to bardzo przydatne dla komponentów interfejsu graficznego, których zadaniem jest prezentowanie żądanych danych oraz dbanie o aktualność tych danych. Aby ułatwić to zadanie, komponent GUI może podczas tworzenia obiektu subskrypcji przekazać metodę, której realizowana będzie obsługa sygnału aktualizacji danej. Dzięki temu komponenty takie jak widok nie muszą posiadać logiki sprawdzania czy dane zostały zaktualizowane. Taki sposób dostępu do danych został nazwany odroczonym (ang. deferred). Konstrukcja obiektu subskrypcji w ten sposób została przedstawiona na listingu \ref{subscription:deferred}. W opozycji do dostępu odroczonego stoi dostęp bezpośredni (ang. direct), który jest bardziej uniwersalny. Jest to nic innego jak utworzenie obiektu subskrypcji oraz obiektu zamka. Deklarując dostęp odroczony przy tworzeniu obiektu subskrypcji można używać również dostępu bezpośredniego (co zazwyczaj ma miejsce w ciele metody, która jest obsługą sygnału aktualizacji danej). Nie można jednak używać dostępu odroczonego jeśli subskrypcja została utworzona z zadeklarowanym dostępem bezpośrednim. Konstrukcja dostępu bezpośredniego została przedstawiona na listingu \ref{subscription:direct}.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=subscription:deferred, caption={Przykład tworzenia obiektu subskrypcji z odroczonym dostępem do danych },alsoletter={()[].=}]
-	
+	\begin{lstlisting}[label=subscription:deferred, caption={Przykład tworzenia obiektu subskrypcji z odroczonym dostępem do danych },alsoletter={()[].=}]	
 Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
 	SubscriptionType::READ), AccessType::DEFERRED, this,
 	std::bind(&ImgWindow::displayImg, this));
@@ -150,7 +149,6 @@ Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=subscription:direct, caption={Przykład tworzenia obiektu subskrypcji z bezpośrednim dostępem do danych },alsoletter={()[].=}]
-	
 Subscription* sub = SubscriptionFactory::create(Dependency("dist.tmp.IMG",
 	SubscriptionType::READ), AccessType::DIRECT);
 	

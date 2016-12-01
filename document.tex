@@ -24,6 +24,7 @@
 \usepackage{MnSymbol} 
 \lstdefinestyle{customcpp} {
 	belowcaptionskip=1\baselineskip,
+	aboveskip=1\baselineskip,
 	language=C++,
 	basicstyle=\footnotesize\ttfamily,
 	frame=single,
@@ -33,11 +34,13 @@
 	breakatwhitespace=true,
 	prebreak={ \space },
 	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
+	morekeywords={signals, slots},
 	escapeinside={@}{@},
 	numbers=left,
-	xleftmargin=2em,
+	framextopmargin=1em,
+	framexbottommargin=1em,
 	framexleftmargin=2em,
-	linewidth=\textwidth,
+	linewidth=1\textwidth,
 	captionpos=b
 }
 \lstset{style=customcpp}
@@ -223,6 +226,11 @@
 %\AtBeginDocument{%
     \addto\captionspolish{%
     \renewcommand\indexname{Indeks rzeczowy}
+}%}
+
+%\AtBeginDocument{%
+\addto\captionspolish{%
+	\renewcommand\lstlistlistingname{Spis listingów}
 }%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -428,8 +436,14 @@ SPECJALNOŚĆ: & \@specjalnosc\\
 \newpage
 \mbox{}\pdfbookmark[0]{Spis rysunków}{spisRysunkow.1}
 \listoffigures*
+
+\newpage
+\mbox{}\pdfbookmark[0]{Spis listingów}{spisListingow.1}
+\lstlistoflistings
 \begin{flushleft}
 \end{flushleft}
+
+
 
 %\newpage
 %\mbox{}\pdfbookmark[0]{Spis tabel}{spisTabel.1}
