@@ -57,7 +57,7 @@ Wszystkie klasy korzystające z tego mechanizmu muszą w swojej deklaracji zawie
 Sposób tworzenia połączeń zostanie zilustrowany na przykładzie. Za punkt wyjścia posłużą dwie klasy: \lstinline$Sender$ (Listing \ref{sender}) oraz \lstinline$Receiver$ (Listing \ref{receiver}).
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=sender,caption=Klasa Sender]
+	\begin{lstlisting}[label=sender,caption=Deklaracja klasy \lstinline$Sender$]
 class Sender : public QObject
 {
 	Q_OBJECT
@@ -72,7 +72,7 @@ signals:
 \end{minipage}
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=receiver, caption=Klasa Receiver]
+	\begin{lstlisting}[label=receiver, caption=Deklaracja klasy \lstinline$Receiver$]
 class Receiver : public QObject
 {
 	Q_OBJECT
