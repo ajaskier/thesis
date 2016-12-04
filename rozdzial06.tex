@@ -1,25 +1,28 @@
 \chapter{Podsumowanie}
 
-\section{Integracja z projektem Gerbil}
-W skład pierwszej fazy integracji nowego systemu z projektem Gerbil wchodzą 2 etapy:
-
+\section{Integracja z~projektem Gerbil}
+W skład pierwszej fazy integracji nowego systemu z~projektem Gerbil wchodzą 2 etapy:
 \begin{enumerate}[labelwidth=\widthof{\ref{last-item2}},label=\arabic*.]
-	\item zapewnienie funkcjonalności związanych z reprezentacją obrazów:
-		\begin{itemize}
-			\item adaptacja istniejących klas zadań odpowiedzialnych za obliczenia konkretnych reprezentacji obrazów wielospektralnych do nowego interfejsu klasy Task,
-			\item adaptacja klasy \lstinline$ImageModel$ do nowego interfejsu klasy Model,
-			\item adaptacja widoków wyświetlających reprezentacje obrazów do nowego mechanizmu dostępu do danych współdzielonych,
-		\end{itemize}
-	\item zapewnienie funkcjonalności związanych z histogramami spektralnymi:
-	\begin{itemize}
-		\item zdefiniowanie procesu wykonania dla struktury reprezentującej histogram spektralny,
-		\item adaptacja istniejących klas zadań odpowiedzialnych za obliczenie histogramu spektralnego,
-		\item adaptacja klasy \lstinline$DistViewModel$ do nowego interfejsu klasy Model,
-		\item adaptacja widoków prezentujących histogramy spektralne do nowego mechanizmu dostępu do danych współdzielonych,
-	\end{itemize}
+	\item zapewnienie funkcjonalności związanych z~reprezentacją obrazów,
+	\item zapewnienie funkcjonalności związanych z~histogramami spektralnymi.
 \end{enumerate}
 
-Efektem tej fazy integracji powinna być aplikacja będąca podzbiorem funkcjonalności oryginalnej aplikacji Gerbil. Jej implementacja powinna być wystarczającym źródłem przykładów, aby zintegrować resztę komponentów projektu z nowym systemem zarządzania danymi oraz procesem wykonania.
+W skład etapu pierwszego wchodzi: 
+\begin{itemize}
+		\item adaptacja istniejących klas zadań odpowiedzialnych za obliczenia konkretnych reprezentacji obrazów wielospektralnych do nowego interfejsu klasy \lstinline$Task$,
+		\item adaptacja klasy \lstinline$ImageModel$ do nowego interfejsu klasy \lstinline$Model$,
+		\item adaptacja widoków wyświetlających reprezentacje obrazów do nowego mechanizmu dostępu do danych współdzielonych.
+\end{itemize}
+
+Na drugi etap składa się:
+\begin{itemize}
+		\item zdefiniowanie procesu wykonania dla struktury reprezentującej histogram spektralny,
+		\item adaptacja istniejących klas zadań odpowiedzialnych za obliczenie histogramu spektralnego,
+		\item adaptacja klasy \lstinline$DistViewModel$ do nowego interfejsu klasy \lstinline$Model$,
+		\item adaptacja widoków prezentujących histogramy spektralne do nowego mechanizmu dostępu do danych współdzielonych,	
+\end{itemize}
+
+Efektem tej fazy integracji powinna być aplikacja będąca podzbiorem funkcjonalności oryginalnej aplikacji Gerbil. Jej implementacja powinna być wystarczającym źródłem przykładów, aby zintegrować resztę komponentów projektu z~nowym systemem zarządzania danymi oraz procesem wykonania.
 
 Etap pierwszy integracji został zakończony, aktualnie trwają prace nad ukończeniem etapu drugiego.
 
@@ -28,7 +31,8 @@ Przewagę nowego systemu zarządzania danymi oraz procesem wykonania można wyr�
 
 \subsection{Dostęp do danych współdzielonych}
 
-Bezpieczeństwo dostępu do danych zostało poprawione w nowej wersji systemu.
+Bezpieczeństwo dostępu do danych zostało poprawione w~nowej wersji systemu.
+
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=dataaccess:old, caption={Przykład dostępu do danych według bieżącego systemu},alsoletter={()[].=}]
@@ -37,7 +41,7 @@ limiters.assign((*ctx)->dimensionality, std::make_pair(0, (*ctx)->nbins-1));
 	\end{lstlisting}
 \end{minipage}
 
-Na listingu \ref{dataaccess:old} przedstawiony został sposób dostępu do danych współdzielonych w obecnej architekturze. Z analizy listingu wynika, że przed faktycznym dostępem do danych wykonywane jest zajęcie muteksu skojarzonego z tą daną. Pozostawienie odpowiedzialności synchronizacji dostępu programiście, który chce ich użyć jest zabiegiem niebezpiecznym. Programista może kwestię synchronizacji pominąć, lub o niej zapomnieć. Skutkować to może naruszeniem ochrony pamięci i zakończeniem działania programu.
+Na listingu \ref{dataaccess:old} przedstawiony został sposób dostępu do danych współdzielonych w~obecnej architekturze. Z~analizy listingu wynika, że przed faktycznym dostępem do danych wykonywane jest zajęcie muteksu skojarzonego z~tą daną. Pozostawienie odpowiedzialności synchronizacji dostępu programiście, który chce ich użyć jest zabiegiem niebezpiecznym. Programista może kwestię synchronizacji pominąć, lub o~niej zapomnieć. Skutkować to może naruszeniem ochrony pamięci i~zakończeniem działania programu.
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=dataaccess:new, caption={Przykład dostępu do danych według nowego systemu},alsoletter={()[].=}]
@@ -47,11 +51,11 @@ QPixmap pix = QPixmap::fromImage(img->export_qt(1));
 	\end{lstlisting}
 \end{minipage}
 
-Na listingu \ref{dataaccess:new} został przedstawiony sposób dostępu do danych współdzielonych za pomocą nowego systemu. Z analizy listingu można wywnioskować, że w tym systemie programista, który chce użyć danych nie jest zobowiązany do wykonywania synchronizacji dostępu. Rzecz ta należy do funkcjonalności modelu danych współdzielonych i wykonywana jest automatycznie podczas żądania dostępu.
+Na listingu \ref{dataaccess:new} został przedstawiony sposób dostępu do danych współdzielonych za pomocą nowego systemu. Z analizy listingu można wywnioskować, że w~tym systemie programista, który chce użyć danych nie jest zobowiązany do wykonywania synchronizacji dostępu. Rzecz ta należy do funkcjonalności modelu danych współdzielonych i~wykonywana jest automatycznie podczas żądania dostępu.
 
 \subsection{Propagacja sygnałów aktualizacji danych}
 
-Sposób definiowania procesu wykonania danych uległ diametralnej zmianie. Obecny system zarządzania procesem wykonania jest zdecentralizowany. Aby utworzenie danej A było zlecone na skutek obliczenia danej B, model B musi emitować sygnał informujący o obliczeniu danej B, model A posiadać slot w którym zdefiniowana jest reakcja na taki sygnał oraz kontroler (jako element warstwy nadrzędnej) musi ustanowić połączenie pomiędzy danym sygnałem i slotem. W wyniku tego aby zapewnić odpowiedni proces wykonania w systemie, należy ręcznie ustanowić bardzo wiele połączeń, co zaciemnia kod. Przykład takiego zaciemnienia może stanowić listing \ref{propagation:old}.
+Sposób definiowania procesu wykonania danych uległ diametralnej zmianie. Obecny system zarządzania procesem wykonania jest zdecentralizowany. Aby utworzenie danej~A było zlecone na skutek obliczenia danej~B, model~B musi emitować sygnał informujący o~obliczeniu danej~B, model~A posiadać slot w~którym zdefiniowana jest reakcja na taki sygnał oraz kontroler (jako element warstwy nadrzędnej) musi ustanowić połączenie pomiędzy danym sygnałem i~slotem. W~wyniku tego aby zapewnić odpowiedni proces wykonania w~systemie, należy ręcznie ustanowić bardzo wiele połączeń, co zaciemnia kod. Przykład takiego zaciemnienia może stanowić listing \ref{propagation:old}.
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=propagation:old, caption={Przykład definiowania procesu wykonania według starego systemu},alsoletter={()[].=}]
@@ -63,11 +67,11 @@ connect(illumm, SIGNAL(newIlluminantApplied(QVector<multi_img::Value>)), dvc, SI
 	\end{lstlisting}
 \end{minipage}
 
-W nowym systemie definiowana procesu wykonania problem ten nie istnieje. Proces wykonania jest definiowany przez deklaracje danych współdzielonych i ich zależności, natomiast klasa SubscriptionManager zapewnia funkcjonalność informowania modeli o potrzebie utworzenia zadania przetwarzającego dane. W związku z tym w nowej architekturze systemu nie istnieje potrzeba aby ręcznie zarządzać procesem przetworzenia danych.
+W nowym systemie definiowana procesu wykonania problem ten nie istnieje. Proces wykonania jest definiowany przez deklaracje danych współdzielonych i~ich zależności, natomiast klasa \lstinline$SubscriptionManager$ zapewnia funkcjonalność informowania modeli o~potrzebie utworzenia zadania przetwarzającego dane. W~związku z~tym w~nowej architekturze systemu nie istnieje potrzeba aby ręcznie zarządzać procesem przetworzenia danych.
 
 \section{Dalsze kierunki rozwoju systemu}
 Do dalszych kierunków rozwoju należy:
 \begin{itemize}
-	\item dalsza integracja z projektem Gerbil,
-	\item zapewnienie możliwości anulowania zadania które zostało uruchomione
+	\item dalsza integracja z~projektem Gerbil,
+	\item zapewnienie możliwości anulowania zadania które zostało uruchomione.
 \end{itemize}

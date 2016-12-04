@@ -3,31 +3,31 @@
 Projekt jest rozwijany pod systemem operacyjnym Linux, dystrybucją Ubuntu 16.04.
 
 \index{C++} \section{C++}
-System Gerbil jest rozwijany w języku C++. Jest to język programowania ogólnego przeznaczenia, ze szczególnym zastosowaniem w tworzeniu systemów. C++ to język: 
+System Gerbil jest rozwijany w~języku C++. Jest to język programowania ogólnego przeznaczenia, ze szczególnym zastosowaniem w~tworzeniu systemów. C++ to język: 
 \begin{itemize}
 	\item wieloparadygmatowy -- pozwala na programowanie proceduralne, obiektowe, funkcyjne oraz ogólne,
-	\item statycznie typowany -- zgodność typów jest sprawdzana w trakcie kompilacji,
+	\item statycznie typowany -- zgodność typów jest sprawdzana w~trakcie kompilacji,
 	\item pozwalający na bezpośrednie zarządzanie pamięcią,
 	\item tworzony według zasady zerowego narzutu - elementy tego języka oraz proste abstrakcje muszą być optymalne (nie marnować bajtów pamięci ani cyklów procesora),
-	\item umożliwiający tworzenie lekkich i wydajnych abstrakcji \cite{Stroustrup}\cite{cplusplus}.
+	\item umożliwiający tworzenie lekkich i~wydajnych abstrakcji \cite{Stroustrup}\cite{cplusplus}.
 \end{itemize}
 
-Język o takiej charakterystyce jest dobrym wyborem do implementacji systemu analizy i wizualizacji skomplikowanych danych.
+Język o~takiej charakterystyce jest dobrym wyborem do implementacji systemu analizy i~wizualizacji skomplikowanych danych.
 
-W projekcie używany jest standard ISO/IEC 14882:2011 języka C++ oraz kompilator GCC w wersji 5.4.0 \cite{C++11}.
+W projekcie używany jest standard ISO/IEC 14882:2011 języka C++ oraz kompilator GCC w~wersji 5.4.0 \cite{C++11}.
 
 \index{STL} \subsection{STL}
-STL (ang. Standard Template Library) jest biblioteką standardową języka C++. Oferuje ona szereg kontenerów, klas, obiektów funkcyjnych oraz algorytmów. Składniki te opisane są w standardzie ISO języka C++, oraz gwarantują identyczne zachowanie w każdej implementacji \cite{Stroustrup}. Ułatwia to tworzenie aplikacji wieloplatformowych.Dzięki gotowym rozwiązaniom zawartym w bibliotece standardowej, proces wytwarzania oprogramowania zyskuje na prostocie i efektywności. 
+STL (ang. Standard Template Library) jest biblioteką standardową języka C++. Oferuje ona szereg kontenerów, klas, obiektów funkcyjnych oraz algorytmów. Składniki te opisane są w~standardzie ISO języka C++, oraz gwarantują identyczne zachowanie w~każdej implementacji \cite{Stroustrup}. Ułatwia to tworzenie aplikacji wieloplatformowych. Dzięki gotowym rozwiązaniom zawartym w~bibliotece standardowej, proces wytwarzania oprogramowania zyskuje na prostocie i~efektywności. 
 
 \index{shared\_ptr} \subsubsection{\lstinline$shared_ptr$}
-\lstinline$shared_ptr$ jest typem umożliwiającym reprezentację własności wspólnej. Wykorzystywany jest w sytuacjach, gdy dwa (lub więcej) fragmenty kodu wymagają dostępu do danych, podczas gdy żaden nie jest odpowiedzialny za usunięcie tych danych. Obiekt \lstinline$shared_ptr$ jest rodzajem wskaźnika z licznikiem wystąpień. Jeśli liczba obiektów wskazujących na konkretną daną spadnie do zera, dana ta jest usuwana \cite{Stroustrup}. 
+\lstinline$shared_ptr$ jest typem umożliwiającym reprezentację własności wspólnej. Wykorzystywany jest w~sytuacjach, gdy dwa (lub więcej) fragmenty kodu wymagają dostępu do danych, podczas gdy żaden nie jest odpowiedzialny za usunięcie tych danych. Obiekt \lstinline$shared_ptr$ jest rodzajem wskaźnika z~licznikiem wystąpień. Jeśli liczba obiektów wskazujących na konkretną daną spadnie do zera, dana ta jest usuwana \cite{Stroustrup}. 
 
 \index{mutex} \subsubsection{\lstinline$mutex$}
 Muteks jest obiektem typu \lstinline$mutex$, służącym do reprezentowania wyłącznych praw dostępu do konkretnego zasobu. Wykorzystuje się go do ochrony przed wyścigami do danych oraz synchronizacji dostępu do danych współdzielonych między wątkami.
 
-Muteks może być w posiadaniu tylko jednego wątku na raz. Zajęcie muteksu jest równoznaczne z nabyciem wyłącznych praw własności do niego. Operacja zajmowania muteksu jest blokująca. Zwolnienie muteksu oznacza zrzeczenie się z prawa własności do niego. Daje to możliwość zajęcia muteksu przez inne oczekujące wątki \cite{Stroustrup}.
+Muteks może być w~posiadaniu tylko jednego wątku na raz. Zajęcie muteksu jest równoznaczne z~nabyciem wyłącznych praw własności do niego. Operacja zajmowania muteksu jest blokująca. Zwolnienie muteksu oznacza zrzeczenie się z~prawa własności do niego. Daje to możliwość zajęcia muteksu przez inne oczekujące wątki \cite{Stroustrup}.
 
-\subsubsection{\lstinline$condition_variable$}
+%\subsubsection{\lstinline$condition_variable$}
 
 \index{Qt} \section{Qt}
 
@@ -36,21 +36,21 @@ Qt jest platformą programistyczną wyposażoną w narzędzia pozwalające uspr
 Platforma Qt posiada szerokie spektrum funkcjonalności. Między innymi są to:
 \begin{itemize}
 	\item system meta-obiektów,
-	\item mechanizm sygnałów i slotów służący do komunikacji pomiędzy obiektami,
+	\item mechanizm sygnałów i~slotów służący do komunikacji pomiędzy obiektami,
 	\item wbudowany system przynależności obiektów,
 	\item wieloplatformowe wsparcie modułu wielowątkowości.
 		
 \end{itemize}
 
-W systemie Gerbil jest wykorzystywane Qt w wersji 5.7.
+W systemie Gerbil jest wykorzystywane Qt w~wersji 5.7.
 
-\index{sygnał} \index{slot} \subsection{Sygnały i sloty}
+\index{sygnał} \index{slot} \subsection{Sygnały i~sloty}
 
-Spośród rozszerzeń języka C++, jakie oferuje Qt, na szczególną uwagę zasługuje mechanizm sygnałów i slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w sposób alternatywny do użycia wywołań zwrotnych. 
+Spośród rozszerzeń języka C++, jakie oferuje Qt, na szczególną uwagę zasługuje mechanizm sygnałów i~slotów. Dzięki niemu możliwe jest skomunikowanie dwóch dowolnych obiektów w~sposób alternatywny do użycia wywołań zwrotnych. 
 
-Sygnał jest wysyłany, gdy nastąpi jakieś zdarzenie (np. naciśnięcie przycisku przez użytkownika), natomiast slot jest odpowiedzią na ten sygnał. Sygnatury sygnału i slotu muszą być zgodne. Mechanizm ten jest luźno powiązany (ang. loosely coupled). Oznacza to, że klasa emitująca sygnał nie musi być świadoma klasy odbierającej. Sygnały i sloty pozwalają na przekazanie dowolnej liczby argumentów dowolnego typu. Sygnały muszą zostać zadeklarowane po słowie kluczowym \lstinline$signals$. Z jednym slotem można połączyć dowolną ilość sygnałów, i odwrotnie -- z jednym sygnałem można skojarzyć dowolną ilość slotów.
+Sygnał jest wysyłany, gdy nastąpi jakieś zdarzenie (np. naciśnięcie przycisku przez użytkownika), natomiast slot jest odpowiedzią na ten sygnał. Sygnatury sygnału i~slotu muszą być zgodne. Mechanizm ten jest luźno powiązany (ang. loosely coupled). Oznacza to, że klasa emitująca sygnał nie musi być świadoma klasy odbierającej. Sygnały i~sloty pozwalają na przekazanie dowolnej liczby argumentów dowolnego typu. Sygnały muszą zostać zadeklarowane po słowie kluczowym \lstinline$signals$. Z jednym slotem można połączyć dowolną ilość sygnałów, i~odwrotnie -- z~jednym sygnałem można skojarzyć dowolną ilość slotów.
 
-Wszystkie klasy korzystające z tego mechanizmu muszą w swojej deklaracji zawierać makro \lstinline$Q_OBJECT$ oraz dziedziczyć (bezpośrednio bądź pośrednio) po klasie \lstinline$QObject$ \cite{Qtdoc}.
+Wszystkie klasy korzystające z~tego mechanizmu muszą w~swojej deklaracji zawierać makro \lstinline$Q_OBJECT$ oraz dziedziczyć (bezpośrednio bądź pośrednio) po klasie \lstinline$QObject$ \cite{Qtdoc}.
 
 
 \subsubsection{Składnia} 
@@ -93,7 +93,7 @@ public slots:
 
 Z analizy listingów \ref{sender} oraz \ref{receiver} wynika, że klasa \lstinline{Sender} zawiera sygnał \lstinline{sendMessage}, natomiast klasa \lstinline{Receiver} zawiera publiczną metodę \lstinline{receiveMessageMethod} oraz publiczny slot \lstinline{receiveMessageSlot}.
 
-W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a sygnałem, bądź sygnałem a slotem. Drugi rodzaj składni, wprowadzony w Qt5, pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i nowy zapis.
+W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z~nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a~sygnałem, bądź sygnałem a~slotem. Drugi rodzaj składni, wprowadzony w~Qt5, pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a~metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i~nowy zapis.
 
 \begin{minipage}{\textwidth}
 	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami},alsoletter={()[].=}]
@@ -112,13 +112,13 @@ QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMes
 	\end{lstlisting}
 \end{minipage}
 
-Mechanizm sygnałów i slotów jest powszechnie wykorzystywany w systemie Gerbil do ustanowienia komunikacji pomiędzy obiektami. Używana jest zarówno stara jak i nowa składnia.
+Mechanizm sygnałów i~slotów jest powszechnie wykorzystywany w~systemie Gerbil do ustanowienia komunikacji pomiędzy obiektami. Używana jest zarówno stara jak i~nowa składnia.
 
 \subsection{Wątek GUI oraz wątki robocze}
-GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w osobnym wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w aplikacjach Qt). Interfejs użytkownika rozwijany w Qt musi zostać uruchomiony w tym wątku. Wszystkie komponenty graficznego interfejsu użytkownika (ang. widget) oraz kilka klas pochodnych nie zadziałają w wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń \cite{Qtdoc}. Gdyby te obliczenia były wykonywane w głównym wątku, aplikacja przestałaby być responsywna podczas obliczeń, co jest efektem niepożądanym.
+GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w~osobnym wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w~aplikacjach Qt). Interfejs użytkownika rozwijany w~Qt musi zostać uruchomiony w~tym wątku. Wszystkie komponenty graficznego interfejsu użytkownika (ang. widget) oraz kilka klas pochodnych nie zadziałają w~wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń \cite{Qtdoc}. Gdyby te obliczenia były wykonywane w~ głównym wątku, aplikacja przestałaby być responsywna podczas obliczeń, co jest zawsze efektem niepożądanym.
 
 \index{Boost} \section{Boost}
-Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka \cite{boost}. Wiele z bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
+Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka \cite{boost}. Wiele z~bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z~perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
 
 
 
@@ -126,10 +126,10 @@ Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjo
 W języku C++ kwestia przechowania obiektów dowolnego typu jest problematyczna, ponieważ jest to język statycznie typowany. 
 
 \subsubsection{\lstinline$void*$}
-W czystym C++ można użyć \lstinline$void*$. Do zmiennej typu \lstinline$void*$ można przypisać wskaźnik dowolnego typu poza wskaźnikiem do funkcji oraz wskaźnikiem do składowej. Aby użyć takiej zmiennej należy dokonać jawnej konwersji \lstinline$static_cast$. Do zastosowania \lstinline$void*$ w kodzie wysokopoziomowym należy podchodzić z rezerwą. Może to wskazywać na błędy projektowe \cite{Stroustrup}.
+W czystym C++ można użyć \lstinline$void*$. Do zmiennej typu \lstinline$void*$ można przypisać wskaźnik dowolnego typu poza wskaźnikiem do funkcji oraz wskaźnikiem do składowej. Aby użyć takiej zmiennej należy dokonać jawnej konwersji \lstinline$static_cast$. Do zastosowania \lstinline$void*$ w~kodzie wysokopoziomowym należy podchodzić z rezerwą. Może to wskazywać na błędy projektowe \cite{Stroustrup}.
 
 \subsubsection{\lstinline$boost::any$}
-Rozwiązaniem, które z powodzeniem można stosować w kodzie wysokopoziomowym jest właśnie klasa \lstinline$boost::any$. Jego zdecydowaną przewagą nad \lstinline$void*$ jest bezpieczny typowo interfejs. Jest to kontener opakowujący pojedynczy obiekt niemal dowolnego typu (obiekt musi posiadać możliwość inicjalizacji na bazie innego obiektu tego typu -- ang. copy-constructible).
+Rozwiązaniem, które z~powodzeniem można stosować w~kodzie wysokopoziomowym jest właśnie klasa \lstinline$boost::any$. Jego zdecydowaną przewagą nad \lstinline$void*$ jest bezpieczny typowo interfejs. Jest to kontener opakowujący pojedynczy obiekt niemal dowolnego typu (obiekt musi posiadać możliwość inicjalizacji na bazie innego obiektu tego typu -- ang. copy-constructible).
 Aby użyć obiektu przechowywanego przez \lstinline$boost::any$ należy dokonać rzutowania \lstinline$boost::any_cast$. Jeżeli zostanie podany typ, na który obiekt nie może zostać zrzutowany, zostanie zgłoszony wyjątek \lstinline$boost::bad_any_cast$ \cite{boost}.
 
 \index{TBB} \section{Intel Threading Building Blocks}
@@ -140,4 +140,4 @@ W systemie Gerbil biblioteka TBB używana jest głownie do implementacji algoryt
 \index{OpenCV} \section{OpenCV}
 OpenCV (Open Source Computer Vision Library) to biblioteka przeznaczona do rozpoznawania obrazów oraz uczenia maszynowego~\cite{opencv}.
 
-Biblioteka ta znajduje wykorzystanie w systemie Gerbil jako bogata baza struktur danych wykorzystywanych do przetwarzania obrazów oraz zaawansowanych algorytmów rozpoznawania obrazów.
+Biblioteka ta znajduje wykorzystanie w~systemie Gerbil jako bogata baza struktur danych wykorzystywanych do przetwarzania obrazów oraz zaawansowanych algorytmów rozpoznawania obrazów.
