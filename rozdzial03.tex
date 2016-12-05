@@ -115,10 +115,10 @@ QObject::connect(&sender, &Sender::sendMessage, &receiver, &Receiver::receiveMes
 Mechanizm sygnałów i~slotów jest powszechnie wykorzystywany w~systemie Gerbil do ustanowienia komunikacji pomiędzy obiektami. Używana jest zarówno stara jak i~nowa składnia.
 
 \subsection{Wątek GUI oraz wątki robocze}
-GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w~osobnym wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI" w~aplikacjach Qt). Interfejs użytkownika rozwijany w~Qt musi zostać uruchomiony w~tym wątku. Wszystkie komponenty graficznego interfejsu użytkownika (ang. widget) oraz kilka klas pochodnych nie zadziałają w~wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń \cite{Qtdoc}. Gdyby te obliczenia były wykonywane w~ głównym wątku, aplikacja przestałaby być responsywna podczas obliczeń, co jest zawsze efektem niepożądanym.
+GUI (ang. Graphical User Interface) jest graficznym interfejsem użytkownika. Każda aplikacja jest uruchamiana w~osobnym wątku. Jest on nazywany wątkiem głównym (bądź "wątkiem GUI"~w~aplikacjach Qt). Interfejs użytkownika rozwijany w~Qt musi zostać uruchomiony w~tym wątku. Wszystkie komponenty graficznego interfejsu użytkownika (ang. widget) oraz kilka klas pochodnych nie zadziałają w~wątkach pobocznych. Wątki poboczne są często nazywane "wątkami roboczymi", ponieważ wykorzystywane są aby odciążyć główny wątek od skomplikowanych obliczeń \cite{Qtdoc}. Gdyby te obliczenia były wykonywane w~ głównym wątku, aplikacja przestałaby być responsywna podczas obliczeń, co jest zawsze efektem niepożądanym.
 
 \index{Boost} \section{Boost}
-Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka \cite{boost}. Wiele z~bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z~perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
+Boost jest kolekcją bibliotek do języka C++. Biblioteki te poszerzają funkcjonalności tego języka~\cite{boost}. Wiele z~bibliotek rozwijanych przez Boost zostało włączonych do standardu C++. Z~perspektywy systemu Gerbil na specjalną uwagę zasługuje Boost.Any.
 
 
 
