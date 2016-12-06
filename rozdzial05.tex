@@ -106,7 +106,7 @@ void DataEntry::endWrite()
 
 Analizując implementację metod pozwalających na bezpieczny zapis danych przedstawionych na listingu \ref{dataentry:sync:write} można dostrzec dużą analogie do metod z~listingu \ref{dataentry:sync:read}. Jedyną zasadniczą różnicą jest fakt, że po zakończeniu zapisu zmienna warunkowa \lstinline$not_writing$ budzi wszystkie wątki oczekujące na dostęp w~celu odczytu.
 
-\section{Model}
+\section{Klasa Model}
 
 Model jest zmodyfikowaną wersją modelu z~wzorca MVC. Jego zadaniem jest kontrola procesu wytworzenia danej. Interfejs zdefiniowany dla modelu został przedstawiony na listingu \ref{modelInterface}.
 
@@ -284,7 +284,7 @@ Gdy jakiś komponent utworzy obiekt klasy \lstinline$Subscription$, obiekt ten 
 
 Jeśli obiekt klasy \lstinline$Subscription$ został stworzony w~celu odczytu danej, klasa \lstinline$SubscriptionManager$ inkrementuje liczbę takich obiektów. Jeżeli ze stanu danej wynika, że nie jest ona aktualna bądź zainicjalizowana obiekt klasy \lstinline$SubscriptionManager$ wysyła żądanie o~utworzenie zadania obliczającego do modelu odpowiedzialnego za tą daną. Jeżeli dana jest aktualna oraz nie odbywa się aktualnie zapis tej danej a~obiekt klasy \lstinline$Subscription$ został utworzony ze zdefiniowanym odroczonym sposobem dostępu do danej, obiekt klasy \lstinline$SubscriptionManager$ wysyła sygnał do komponentu (poprzez obiekt klasy \lstinline$Subscription$), mówiący że dana jest aktualna i~można przeprowadzić do niej dostęp. Scenariusz ten został przedstawiony na rysunku \ref{fig:subscribe}.
 
-Jeśli obiekt klasy \lstinline$Subscription$ został stworzony w~celu zapisu (modyfikacji) danej, klasa \lstinline$SubscriptionManager$ przypisuje wartość logiczną prawdy do flagi wskazującej na obecność takiego typu obiektu oraz wartość logiczną fałszu do flagi wskazującej na aktualność danej. Następnie sygnał o~modyfikacji danej jest propagowany w~dół grafu zależności danych. Jeżeli któraś z~danych zależnych od danej, która będzie zmodyfikowana, jest bezpośrednio lub pośrednio subskrybuowana (istnieją obiekty klasy \lstinline$Subscription$ utworzone w~celu dostępu do tej danej, bądź danej od niej zależnej), wówczas do modelu odpowiedzialnego za nią wysyłane jest żądanie o~utworzenie obiektu zadania obliczającego. Zazwyczaj model reaguje pozytywnie -- tworzy obiekt zadania, przekazuje go do obiektu klasy \lstinline$TaskScheduler$, który tworzy obeiekty klasy \lstinline$Subscription$ dla obiektu zadania (w tym zawsze jeden w celu zapisu), przez co wykonanie znowu znajduje się w~punkcie rejestrowania faktu subskrypcji (utworzenia obiektu klasy \lstinline$Subscription$) przez klasę \lstinline$SubscriptionManager$, tym razem jednak dla danej pochodnej. Proces ten w~sposób rekurencyjny powtarza się dla wszystkich danych zależnych od wyjściowej danej. W~następnym kroku dla każdej danej zależnej od danej wyjściowej, fladze wskazującej na aktualność danej zostaje przypisana wartość logiczna fałszu. Scenariusz ten został przedstawiony na rysunku \ref{fig:subscribe}.
+Jeśli obiekt klasy \lstinline$Subscription$ został stworzony w~celu zapisu (modyfikacji) danej, klasa \lstinline$SubscriptionManager$ przypisuje wartość logiczną prawdy do flagi wskazującej na obecność takiego typu obiektu oraz wartość logiczną fałszu do flagi wskazującej na aktualność danej. Następnie sygnał o~modyfikacji danej jest propagowany w~dół grafu zależności danych. Jeżeli któraś z~danych zależnych od danej, która będzie zmodyfikowana, jest bezpośrednio lub pośrednio subskrybowana (istnieją obiekty klasy \lstinline$Subscription$ utworzone w~celu dostępu do tej danej, bądź danej od niej zależnej), wówczas do modelu odpowiedzialnego za nią wysyłane jest żądanie o~utworzenie obiektu zadania obliczającego. Zazwyczaj model reaguje pozytywnie -- tworzy obiekt zadania, przekazuje go do obiektu klasy \lstinline$TaskScheduler$, który tworzy obiekty klasy \lstinline$Subscription$ dla obiektu zadania (w tym zawsze jeden w celu zapisu), przez co wykonanie znowu znajduje się w~punkcie rejestrowania faktu subskrypcji (utworzenia obiektu klasy \lstinline$Subscription$) przez klasę \lstinline$SubscriptionManager$, tym razem jednak dla danej pochodnej. Proces ten w~sposób rekurencyjny powtarza się dla wszystkich danych zależnych od wyjściowej danej. W~następnym kroku dla każdej danej zależnej od danej wyjściowej, fladze wskazującej na aktualność danej zostaje przypisana wartość logiczna fałszu. Scenariusz ten został przedstawiony na rysunku \ref{fig:subscribe}.
 
 \begin{figure}[ht]
 	\centering
@@ -294,7 +294,7 @@ Jeśli obiekt klasy \lstinline$Subscription$ został stworzony w~celu zapisu (mo
 \end{figure}
 
 Klasa \lstinline$SubscriptionManager$ musi podjąć również jakąś akcję w~przypadku, gdy obiekt klasy \lstinline$Subscription$ zostanie usunięty. Kolekcja tych obiektów zostaje wówczas zaktualizowana. Jeżeli kolekcja ta jest pusta, dana oraz metadana zostają zwolnione, a~flagom inicjalizacji oraz aktualności zostaje przypisany fałsz.
-Jeżeli kolekcja nie jest pusta, wówczas jeśli sytuacja odnosiła się do obiektu klasy \lstinline$Subscription$ utworzonego w~celu odczytu dodatkowo zostaje dekrementowany licznik takich obiektów, zaś w~przypadku obiektu klasy \lstinline$Susbscription$ utworzonego w~celu zapisu/modyfikacji, fladze wskazującej na istnienie takiego obiektu zostaje przypisany fałsz, a~do wszystkich subskrybentów (komponentów posiadających obiekty klasy \lstinline$Subscription$ zdefinowane z~odroczonym sposobem dostępu) danej zostaje wysłany sygnał o~aktualizacji danej. Scenariusz ten został przedstawiony na rysunku \ref{fig:unsubscribe}.
+Jeżeli kolekcja nie jest pusta, wówczas jeśli sytuacja odnosiła się do obiektu klasy \lstinline$Subscription$ utworzonego w~celu odczytu dodatkowo zostaje dekrementowany licznik takich obiektów, zaś w~przypadku obiektu klasy \lstinline$Susbscription$ utworzonego w~celu zapisu/modyfikacji, fladze wskazującej na istnienie takiego obiektu zostaje przypisany fałsz, a~do wszystkich subskrybentów (komponentów posiadających obiekty klasy \lstinline$Subscription$ zdefiniowane z~odroczonym sposobem dostępu) danej zostaje wysłany sygnał o~aktualizacji danej. Scenariusz ten został przedstawiony na rysunku \ref{fig:unsubscribe}.
 
 \begin{figure}[ht]
 	\centering
@@ -306,3 +306,47 @@ Jeżeli kolekcja nie jest pusta, wówczas jeśli sytuacja odnosiła się do obie
 Gdy ma miejsce faktyczny dostęp do danych, poprzez obiekt klasy \lstinline$Lock$, w~celu odczytu obiekt klasy \lstinline$SubscriptionManager$ wywołuje metodę \lstinline$read$ klasy \lstinline$DataEntry$, inkrementuje licznik aktywnych dostępów do danych w~celu odczytu oraz zwraca dane pozyskane za pomocą metody. Podczas dostępu w~celu zapisu sytuacja jest analogiczna -- jedyną różnicą jest fakt przypisania wartości prawdy fladze aktywnego dostępu zamiast inkrementacji licznika. 
 
 Gdy faktyczny dostęp w~celu odczytu zostaje zakończony wywołana zostaje metoda \lstinline$endRead$ klasy \lstinline$DataEntry$, a~licznik aktywnych dostępów zostaje dekrementowany. W~sytuacji zakończenia zapisu wywoływana zostaje metoda \lstinline$endWrite$, flaga wskazująca na aktywny zapis zostaje ustawiona na fałsz, a~flagom wskazującym zainicjalizowanie oraz aktualność danej przypisana jest prawda.
+
+\section{Porównanie systemów}
+Przewagę nowego systemu zarządzania danymi oraz procesem wykonania można wyróżnić na 2 płaszczyznach -- dostępu do danych współdzielonych oraz zapewnienia propagacji sygnałów aktualizacji danych.
+
+\subsection{Dostęp do danych współdzielonych}
+
+Bezpieczeństwo dostępu do danych zostało poprawione w~nowej wersji systemu.
+
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataaccess:old, caption={Przykład dostępu do danych według bieżącego systemu},alsoletter={()[].=}]
+	SharedDataLock ctxlock(ctx->mutex);
+	limiters.assign((*ctx)->dimensionality, std::make_pair(0, (*ctx)->nbins-1));
+	\end{lstlisting}
+\end{minipage}
+
+Na listingu \ref{dataaccess:old} przedstawiony został sposób dostępu do danych współdzielonych w~obecnej architekturze. Z~analizy listingu wynika, że przed faktycznym dostępem do danych wykonywane jest zajęcie muteksu skojarzonego z~tą daną. Pozostawienie odpowiedzialności synchronizacji dostępu programiście, który chce ich użyć jest zabiegiem niebezpiecznym. Programista może kwestię synchronizacji pominąć, lub o~niej zapomnieć. Skutkować to może naruszeniem ochrony pamięci i~zakończeniem działania programu.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=dataaccess:new, caption={Przykład dostępu do danych według nowego systemu},alsoletter={()[].=}]
+	Subscription::Lock<multi_img> lock(*sub);
+	multi_img* img = lock();
+	QPixmap pix = QPixmap::fromImage(img->export_qt(1));
+	\end{lstlisting}
+\end{minipage}
+
+Na listingu \ref{dataaccess:new} został przedstawiony sposób dostępu do danych współdzielonych za pomocą nowego systemu. Z analizy listingu można wywnioskować, że w~tym systemie programista, który chce użyć danych nie jest zobowiązany do wykonywania synchronizacji dostępu. Rzecz ta należy do funkcjonalności modelu danych współdzielonych i~wykonywana jest automatycznie podczas żądania dostępu.
+
+\subsection{Propagacja sygnałów aktualizacji danych}
+
+Sposób definiowania procesu wykonania danych uległ diametralnej zmianie. Obecny system zarządzania procesem wykonania jest zdecentralizowany. Aby utworzenie danej~A było zlecone na skutek obliczenia danej~B, model~B musi emitować sygnał informujący o~obliczeniu danej~B, model~A posiadać slot w~którym zdefiniowana jest reakcja na taki sygnał oraz kontroler (jako element warstwy nadrzędnej) musi ustanowić połączenie pomiędzy danym sygnałem i~slotem. W~wyniku tego aby zapewnić odpowiedni proces wykonania w~systemie, należy ręcznie ustanowić bardzo wiele połączeń, co zaciemnia kod. Przykład takiego zaciemnienia może stanowić listing \ref{propagation:old}.
+
+\begin{minipage}{\textwidth}
+	\begin{lstlisting}[label=propagation:old, caption={Przykład definiowania procesu wykonania według starego systemu},alsoletter={()[].=}]
+	connect(lm, SIGNAL(newLabeling(const cv::Mat1s&, const QVector<QColor>&, bool)), dvc, SLOT(updateLabels(cv::Mat1s,QVector<QColor>,bool)));
+	connect(lm, SIGNAL(partialLabelUpdate(const cv::Mat1s&,const cv::Mat1b&)), dvc, SLOT(updateLabelsPartially(const cv::Mat1s&,const cv::Mat1b&)));
+	connect(dvc, SIGNAL(alterLabelRequested(short,cv::Mat1b,bool)), lm, SLOT(alterLabel(short,cv::Mat1b,bool)));
+	connect(illumm, SIGNAL(newIlluminantCurve(QVector<multi_img::Value>)), dvc, SIGNAL(newIlluminantCurve(QVector<multi_img::Value>)));
+	connect(illumm, SIGNAL(newIlluminantApplied(QVector<multi_img::Value>)), dvc, SIGNAL(newIlluminantApplied(QVector<multi_img::Value>)));
+	\end{lstlisting}
+\end{minipage}
+
+W nowym systemie definiowana procesu wykonania problem ten nie istnieje. Proces wykonania jest definiowany przez deklaracje danych współdzielonych i~ich zależności, natomiast klasa \lstinline$SubscriptionManager$ zapewnia funkcjonalność informowania modeli o~potrzebie utworzenia zadania przetwarzającego dane. W~związku z~tym w~nowej architekturze systemu nie istnieje potrzeba aby ręcznie zarządzać procesem przetworzenia danych.
+
