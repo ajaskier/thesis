@@ -8,7 +8,7 @@ System Gerbil jest rozwijany w~języku C++. Jest to język programowania ogólne
 	\item wieloparadygmatowy -- pozwala na programowanie proceduralne, obiektowe, funkcyjne oraz ogólne,
 	\item statycznie typowany -- zgodność typów jest sprawdzana w~trakcie kompilacji,
 	\item pozwalający na bezpośrednie zarządzanie pamięcią,
-	\item tworzony według zasady zerowego narzutu - elementy tego języka oraz proste abstrakcje muszą być optymalne (nie marnować bajtów pamięci ani cyklów procesora),
+	\item tworzony według zasady zerowego narzutu -- elementy tego języka oraz proste abstrakcje muszą być optymalne (nie marnować bajtów pamięci ani cyklów procesora),
 	\item umożliwiający tworzenie lekkich i~wydajnych abstrakcji \cite{Stroustrup}\cite{cplusplus}.
 \end{itemize}
 
@@ -57,7 +57,7 @@ Wszystkie klasy korzystające z~tego mechanizmu muszą w~swojej deklaracji zawie
 Sposób tworzenia połączeń zostanie zilustrowany na przykładzie. Za punkt wyjścia posłużą dwie klasy: \lstinline$Sender$ (Listing \ref{sender}) oraz \lstinline$Receiver$ (Listing \ref{receiver}).
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=sender,caption=Deklaracja klasy \lstinline$Sender$]
+	\begin{lstlisting}[label=sender,caption=Deklaracja klasy \lstinline$Sender$.]
 class Sender : public QObject
 {
 	Q_OBJECT
@@ -72,7 +72,7 @@ signals:
 \end{minipage}
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=receiver, caption=Deklaracja klasy \lstinline$Receiver$]
+	\begin{lstlisting}[label=receiver, caption=Deklaracja klasy \lstinline$Receiver$.]
 class Receiver : public QObject
 {
 	Q_OBJECT
@@ -96,7 +96,7 @@ Z analizy listingów \ref{sender} oraz \ref{receiver} wynika, że klasa \lstinli
 W Qt występują dwa rodzaje składni pozwalające na ustanowienie połączenia. Jedna z~nich (starsza) pozwala na ustanowienie połączenia jedynie pomiędzy sygnałem a~sygnałem, bądź sygnałem a~slotem. Drugi rodzaj składni, wprowadzony w~Qt5, pozwala dodatkowo na nawiązanie połączenia pomiędzy sygnałem a~metodą klasy. Na listingu \ref{connectionsyntax} przedstawiony jest zarówno stary jak i~nowy zapis.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami},alsoletter={()[].=}]
+	\begin{lstlisting}[label=connectionsyntax, caption={Składnia tworzenia połączeń między obiektami.},alsoletter={()[].=}]
 Sender sender;
 Receiver receiver;
 

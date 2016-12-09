@@ -40,7 +40,7 @@ Ważne jest aby do roli danej współdzielonej można było promować każdą d
 Kwestię przechowania dowolnego typu można rozwiązać poprzez wykorzystanie \lstinline$boost::any$. Natomiast problem uchwytu do danych, którego można użyć w~różnych fragmentach kodu rozwiązuje \lstinline$std::shared_ptr$. Z~tego powodu \lstinline$std::shared_ptr<boost::any>$ stanowi trzon modelu danych współdzielonych. Zarówno dane jak i~towarzyszące im metadane są przechowywane w~ten sposób. 
  
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataentry:alias, caption={Aliasy używane w~kodzie aplikacji},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataentry:alias, caption={Aliasy używane w~kodzie aplikacji.},alsoletter={()[].=}]
 using handle = std::shared_ptr<boost::any>;
 using handle_pair = std::tuple<handle, handle>;
 	\end{lstlisting}
@@ -52,7 +52,7 @@ Aby kod był bardziej zwięzły stosowane są w~nim aliasy (Listing \ref{dataen
 Rozwiązanie to jednak nie likwiduje problemu synchronizacji dostępu do danych. Wobec tego model został wzbogacony o~muteks oraz dwie zmienne warunkowe (Listing \ref{dataentry:sync}). Pierwsza zmienna warunkowa -- \lstinline$not_reading$ służy do obsłużenia wątków oczekujących na dostęp do danych w~celu zapisu, natomiast druga \lstinline$not_writing$ do obsługi wątków oczekujących na dostęp do danych w~celu odczytu.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataentry:sync, caption={Składowe klasy \lstinline$DataEntry$ zapewniające bezpieczne użycie w~środowisku wielowątkowym},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataentry:sync, caption={Składowe klasy \lstinline$DataEntry$ zapewniające bezpieczne użycie w~środowisku wielowątkowym.},alsoletter={()[].=}]
 std::mutex mu;
 std::condition_variable not_reading;
 std::condition_variable not_writing;
@@ -62,7 +62,7 @@ std::condition_variable not_writing;
 Z pomocą tych narzędzi model udostępnia metody pozwalające na bezpieczny dostęp do danych w~aplikacji wielowątkowej.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataentry:sync:read, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny odczyt danych współdzielonych w~środowisku wielowątkowym},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataentry:sync:read, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny odczyt danych współdzielonych w~środowisku wielowątkowym.},alsoletter={()[].=}]
 handle_pair DataEntry::read()
 {
 	std::unique_lock<std::mutex> lock(mu);
@@ -86,7 +86,7 @@ W metodzie \lstinline$read$ tworzona jest blokada, która zajmuje muteks. Nastę
 Metoda \lstinline$endRead$ służy do sygnalizacji zakończenia odczytu. W~jej ciele wykonywane jest sprawdzenie czy wewnętrzny stan danej jest prawidłowy. Jeśli jest, wówczas zmienna warunkowa \lstinline$not_reading$ dokonuje przebudzenia jednego z~wątków oczekujących na dostęp do danych w~celu zapisu.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataentry:sync:write, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny zapis danych współdzielonych w~środowisku wielowątkowym},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataentry:sync:write, caption={Metody klasy \lstinline$DataEntry$ zapewniające bezpieczny zapis danych współdzielonych w~środowisku wielowątkowym.},alsoletter={()[].=}]
 handle_pair DataEntry::write()
 {
 	std::unique_lock<std::mutex> lock(mu);
@@ -111,7 +111,7 @@ Analizując implementację metod pozwalających na bezpieczny zapis danych przed
 Model jest zmodyfikowaną wersją modelu z~wzorca MVC. Jego zadaniem jest kontrola procesu wytworzenia danej. Interfejs zdefiniowany dla modelu został przedstawiony na listingu \ref{modelInterface}.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=modelInterface, caption={Interfejs klasy \lstinline$Model$},alsoletter={()[].=}]
+	\begin{lstlisting}[label=modelInterface, caption={Interfejs klasy \lstinline$Model$.},alsoletter={()[].=}]
 class Model : public QObject
 {
 	Q_OBJECT
@@ -144,7 +144,7 @@ private:
 Metoda \lstinline$registerData$ służy do rejestrowania danych. Za jej pomocą model zgłasza współdzielone dane, za które bierze odpowiedzialność. Każda dana współdzielona, aby istnieć w~systemie, musi zostać zarejestrowana przez któryś z modeli (obiekt klasy pochodnej od klasy \lstinline$Model$). Do zarejestrowania danej wymagane jest jej identyfikator (ID) oraz lista ID danych, od której owa dana jest zależna. Na listingu \ref{model:registerData} został przedstawiony przykład rejestrowania współdzielonych danych. W~pierwszych dwóch liniach zarejestrowane zostały dane, które są niezależne (lista ich zależności jest pusta). W~trzeciej linii jest wyrażona rejestracja danej \lstinline$image.IMG$ oraz jej zależności od danych \lstinline$image$ oraz \lstinline$ROI$. Dzięki takiemu formatowi rejestrowania danych system jest w~stanie stworzyć graf zależności danych, wykorzystywany do prawidłowej propagacji informacji.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=model:registerData, caption={Przykłady rejestrowania danych},alsoletter={()[].=}]
+	\begin{lstlisting}[label=model:registerData, caption={Przykłady rejestrowania danych.},alsoletter={()[].=}]
 registerData("image", {});
 registerData("ROI", {});
 registerData("image.IMG", {"image", "ROI"});
@@ -163,7 +163,7 @@ Aby dokonać faktycznego dostępu do danej tworzy się obiekt klasy \lstinline$L
 Klasa \lstinline$Subscription$ zapewnia jeszcze jedną bardzo ważną funkcjonalność. Jest nią sygnalizowanie aktualizacji danych. Jest to bardzo przydatne dla komponentów interfejsu graficznego, których zadaniem jest prezentowanie żądanych danych oraz dbanie o~aktualność tych danych. Aby ułatwić to zadanie, komponent GUI może podczas tworzenia obiektu klasy \lstinline$Subscription$ przekazać metodę, w~ciele której realizowana będzie obsługa sygnału aktualizacji danej. Dzięki temu komponenty takie jak widok nie muszą posiadać logiki sprawdzania czy dane zostały zaktualizowane. Taki sposób dostępu do danych został nazwany odroczonym (ang. deferred). Konstrukcja obiektu klasy \lstinline$Subscription$ w~ten sposób została przedstawiona na listingu \ref{subscription:deferred}. W~opozycji do dostępu odroczonego stoi dostęp bezpośredni (ang. direct), który jest bardziej uniwersalny. Jest to nic innego jak utworzenie obiektu klasy \lstinline$Subscription$ oraz obiektu klasy \lstinline$Lock$. Deklarując dostęp odroczony przy tworzeniu obiektu subskrypcji można używać również dostępu bezpośredniego (co zazwyczaj ma miejsce w~ciele metody, która jest obsługą sygnału aktualizacji danej). Nie można jednak używać dostępu odroczonego jeśli obiekt klasy \lstinline$Subscription$ został utworzony z~zadeklarowanym dostępem bezpośrednim. Konstrukcja dostępu bezpośredniego została przedstawiona na listingu \ref{subscription:direct}.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=subscription:deferred, caption={Przykład tworzenia obiektu klasy \lstinline$Subscription$ z~odroczonym dostępem do danych },alsoletter={()[].=}]	
+	\begin{lstlisting}[label=subscription:deferred, caption={Przykład tworzenia obiektu klasy \lstinline$Subscription$ z~odroczonym dostępem do danych.},alsoletter={()[].=}]	
 Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
 	SubscriptionType::READ), AccessType::DEFERRED, this,
 	std::bind(&ImgWindow::displayImg, this));
@@ -173,7 +173,7 @@ Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
 \end{minipage}
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=subscription:direct, caption={Przykład tworzenia obiektu klasy \lstinline$Subscription$ z~bezpośrednim dostępem do danych },alsoletter={()[].=}]
+	\begin{lstlisting}[label=subscription:direct, caption={Przykład tworzenia obiektu klasy \lstinline$Subscription$ z~bezpośrednim dostępem do danych.},alsoletter={()[].=}]
 Subscription* sub = SubscriptionFactory::create(Dependency("image.IMG",
 	SubscriptionType::READ), AccessType::DIRECT);
 	
@@ -196,7 +196,7 @@ Każdy obiekt zadania posiada własny identyfikator. Może być on przekazany ja
 Interfejs klasy \lstinline$Task$ został przedstawiony na listingu \ref{task:interface}. 
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=task:interface, caption={Interfejs klasy \lstinline$Task$},alsoletter={()[].=}]
+	\begin{lstlisting}[label=task:interface, caption={Interfejs klasy \lstinline$Task$.},alsoletter={()[].=}]
 class Task : public QObject
 {
 	Q_OBJECT
@@ -238,7 +238,7 @@ Klasa \lstinline$TaskScheduler$ jest odpowiedzialna za zarządzanie obiektami za
 W metodzie \lstinline$startTask$ tworzony jest wątek, do którego przekazywany jest obiekt zadania. Wątek jest uruchamiany, a~w nim uruchamiany zostaje obiekt zadania. Dodatkowo ustanawiane jest połączenie, za pomocą którego po zakończeniu obiektu zadania obiekt klasy \lstinline$TaskScheduler$ ponownie iteruje pulę zadań w~celu znalezienia kandydata do uruchomienia. 
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=scheduler:interface, caption={Deklaracja klasy \lstinline$TaskScheduler$},alsoletter={()[].=}]
+	\begin{lstlisting}[label=scheduler:interface, caption={Deklaracja klasy \lstinline$TaskScheduler$.},alsoletter={()[].=}]
 class TaskScheduler : public QObject
 {
 	Q_OBJECT
@@ -289,7 +289,7 @@ Jeśli obiekt klasy \lstinline$Subscription$ został stworzony w~celu zapisu (mo
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\linewidth]{rys05/subscribe}
-	\caption{Schemat działania podczas rejestrowania faktu subskrypcji}
+	\caption{Schemat działania podczas rejestrowania faktu subskrypcji.}
 	\label{fig:subscribe}	
 \end{figure}
 
@@ -299,7 +299,7 @@ Jeżeli kolekcja nie jest pusta, wówczas jeśli sytuacja odnosiła się do obie
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\linewidth]{rys05/unsubscribe}
-	\caption{Schemat działania podczas usuwania subskrypcji}
+	\caption{Schemat działania podczas usuwania subskrypcji.}
 	\label{fig:unsubscribe}	
 \end{figure}
 
@@ -316,7 +316,7 @@ Bezpieczeństwo dostępu do danych zostało poprawione w~nowej wersji systemu.
 
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataaccess:old, caption={Przykład dostępu do danych według bieżącego systemu},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataaccess:old, caption={Przykład dostępu do danych według bieżącego systemu.},alsoletter={()[].=}]
 	SharedDataLock ctxlock(ctx->mutex);
 	limiters.assign((*ctx)->dimensionality, std::make_pair(0, (*ctx)->nbins-1));
 	\end{lstlisting}
@@ -325,7 +325,7 @@ Bezpieczeństwo dostępu do danych zostało poprawione w~nowej wersji systemu.
 Na listingu \ref{dataaccess:old} przedstawiony został sposób dostępu do danych współdzielonych w~obecnej architekturze. Z~analizy listingu wynika, że przed faktycznym dostępem do danych wykonywane jest zajęcie muteksu skojarzonego z~tą daną. Pozostawienie odpowiedzialności synchronizacji dostępu programiście, który chce ich użyć jest zabiegiem niebezpiecznym. Programista może kwestię synchronizacji pominąć, lub o~niej zapomnieć. Skutkować to może naruszeniem ochrony pamięci i~zakończeniem działania programu.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=dataaccess:new, caption={Przykład dostępu do danych według nowego systemu},alsoletter={()[].=}]
+	\begin{lstlisting}[label=dataaccess:new, caption={Przykład dostępu do danych według nowego systemu.},alsoletter={()[].=}]
 	Subscription::Lock<multi_img> lock(*sub);
 	multi_img* img = lock();
 	QPixmap pix = QPixmap::fromImage(img->export_qt(1));
@@ -339,7 +339,7 @@ Na listingu \ref{dataaccess:new} został przedstawiony sposób dostępu do danyc
 Sposób definiowania procesu wykonania danych uległ diametralnej zmianie. Obecny system zarządzania procesem wykonania jest zdecentralizowany. Aby utworzenie danej~A było zlecone na skutek obliczenia danej~B, model~B musi emitować sygnał informujący o~obliczeniu danej~B, model~A posiadać slot w~którym zdefiniowana jest reakcja na taki sygnał oraz kontroler (jako element warstwy nadrzędnej) musi ustanowić połączenie pomiędzy danym sygnałem i~slotem. W~wyniku tego aby zapewnić odpowiedni proces wykonania w~systemie, należy ręcznie ustanowić bardzo wiele połączeń, co zaciemnia kod. Przykład takiego zaciemnienia może stanowić listing \ref{propagation:old}.
 
 \begin{minipage}{\textwidth}
-	\begin{lstlisting}[label=propagation:old, caption={Przykład definiowania procesu wykonania według starego systemu},alsoletter={()[].=}]
+	\begin{lstlisting}[label=propagation:old, caption={Przykład definiowania procesu wykonania według starego systemu.},alsoletter={()[].=}]
 	connect(lm, SIGNAL(newLabeling(const cv::Mat1s&, const QVector<QColor>&, bool)), dvc, SLOT(updateLabels(cv::Mat1s,QVector<QColor>,bool)));
 	connect(lm, SIGNAL(partialLabelUpdate(const cv::Mat1s&,const cv::Mat1b&)), dvc, SLOT(updateLabelsPartially(const cv::Mat1s&,const cv::Mat1b&)));
 	connect(dvc, SIGNAL(alterLabelRequested(short,cv::Mat1b,bool)), lm, SLOT(alterLabel(short,cv::Mat1b,bool)));

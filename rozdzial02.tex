@@ -8,7 +8,7 @@ Obrazowanie wielospektralne jest techniką rejestracji obrazu za pomocą fal ele
 \begin{figure}[ht]
 	\centering
 		\includegraphics[width=0.75\linewidth]{rys02/multispectral-cube-vector}
-	\caption{Schemat kostki wielospektralnego}
+	\caption{Schemat kostki wielospektralnego.}
 	\label{fig:multispectral-cube}	
 \end{figure}
 
@@ -27,23 +27,23 @@ Ze względu na swoją charakterystykę serie obrazów wielospektralnych mogą be
 
 Oryginalny obraz wielospektralny jest traktowany jako dana wejściowa w systemie. Na jego podstawie powstają dane pochodne. Są to głównie kolejne obrazy oraz histogramy wielospektralne. Do stworzenia prototypu mechanizmu zarządzania danymi oraz procesem przetworzenia użyte zostały poniższe dane:
 \begin{itemize}
-	\item \index{image} \textbf{image} -- oryginalny obraz wielospektralny. Dana ta jest obliczana podczas inicjalizacji aplikacji. Użytkownik może wejść w interakcję z~systemem dopiero gdy image zostanie przetworzone.
-	\item \index{ROI} \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu. Jest przechowywany jako współrzędne lewego górnego wierzchołka zaznaczenia, jego wysokość oraz szerokość,
-	\item \index{image.IMG} \textbf{image.IMG} -- fragment obrazu oryginalnego zdeterminowany przez ROI,
-	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektorów składających się z~pikseli o~jednakowych współrzędnych na przestrzeni pasm spektralnych,
-	\item \index{image.GRAD} \textbf{image.GRAD} -- gradient obrazu image.IMG,
-	\item \index{image.PCA} \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (ang. Principal Component Analysis -- Analiza Głównych Składowych)\cite{PCA},
-	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA,
-	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji image.* (przykładowo bands.NORM.6),
-	\item \index{dist.IMG} \textbf{dist.IMG} - histogram wielospektralny obrazu image.IMG,
-	\item \index{dist.tmp.IMG} \textbf{dist.tmp.IMG} - dana pomocnicza używana do uzyskania danej dist.IMG. 
+	\item \index{image} \textbf{image} -- oryginalny obraz wielospektralny. Dana ta jest obliczana podczas inicjalizacji aplikacji. Użytkownik może wejść w interakcję z~systemem dopiero gdy image zostanie przetworzone;
+	\item \index{ROI} \textbf{ROI (Region of Interest)} -- wyselekcjonowany podzbiór danych, w tym przypadku wybrane prostokątne zaznaczenie obrazu. Jest przechowywany jako współrzędne lewego górnego wierzchołka zaznaczenia, jego wysokość oraz szerokość;
+	\item \index{image.IMG} \textbf{image.IMG} -- fragment obrazu oryginalnego zdeterminowany przez ROI;
+	\item \index{image.NORM} \textbf{image.NORM} -- image.IMG po normalizacji wektorów składających się z~pikseli o~jednakowych współrzędnych na przestrzeni pasm spektralnych;
+	\item \index{image.GRAD} \textbf{image.GRAD} -- gradient obrazu image.IMG;
+	\item \index{image.PCA} \textbf{image.PCA} -- image.IMG po zastosowaniu metody PCA (ang. Principal Component Analysis -- Analiza Głównych Składowych)\cite{PCA};
+	\item \index{image.GRADPCA} \textbf{image.GRADPCA} -- image.GRAD po zastosowaniu metody PCA;
+	\item \index{band} \textbf{bands.*.N} -- pojedynczy N-ty obraz spektralny danej reprezentacji image.* (przykładowo bands.NORM.6);
+	\item \index{dist.IMG} \textbf{dist.IMG} -- histogram wielospektralny obrazu image.IMG;
+	\item \index{dist.tmp.IMG} \textbf{dist.tmp.IMG} -- dana pomocnicza używana do uzyskania danej dist.IMG. 
 \end{itemize}
 Z racji, że jedne dane produkują inne, łatwo jest zdefiniować hierarchię danych w tym systemie.
 
 \begin{figure}[ht]
 	\centering
 		\includegraphics[width=0.7\linewidth]{rys02/data-dependencies}
-	\caption{Graf zależności danych w systemie Gerbil}
+	\caption{Graf zależności danych w systemie Gerbil.}
 	\label{fig:data-dependencies}	
 \end{figure}
 
